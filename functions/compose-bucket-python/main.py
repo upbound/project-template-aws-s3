@@ -13,54 +13,59 @@ from .model.io.upbound.aws.s3.bucketserversideencryptionconfiguration import (
 
 def compose(req: fnv1.RunFunctionRequest, rsp: fnv1.RunFunctionResponse):
     observed_xr = v1alpha1.XStorageBucket(**req.observed.composite.resource)
-    xr_name = observed_xr.metadata.name
-    bucket_name = xr_name + "-bucket"
     params = observed_xr.spec.parameters
 
-    bucket = bucketv1beta1.Bucket(
+    desired_bucket = bucketv1beta1.Bucket(
         apiVersion="s3.aws.upbound.io/v1beta1",
         kind="Bucket",
-        metadata=metav1.ObjectMeta(
-            name=bucket_name,
-        ),
         spec=bucketv1beta1.Spec(
             forProvider=bucketv1beta1.ForProvider(
                 region=params.region,
             ),
         ),
     )
-    resource.update(rsp.desired.resources["bucket"], bucket)
+    resource.update(rsp.desired.resources["bucket"], desired_bucket)
 
-    acl = aclv1beta1.BucketACL(
+    # Return early if Crossplane hasn't observed the bucket yet. This means it
+    # hasn't been created yet. This function will be called again after it is.
+    if "bucket" not in req.observed.resources:
+        return
+
+    observed_bucket = bucketv1beta1.Bucket(**req.observed.resources["bucket"].resource)
+
+    # The desired ACL, encryption, and versioning resources all need to refer to
+    # the bucket by its external name, which is stored in its external name
+    # annotation. Return early if the Bucket's external-name annotation isn't
+    # set yet.
+    if observed_bucket.metadata is None or observed_bucket.metadata.annotations is None:
+        return
+    if "crossplane.io/external-name" not in observed_bucket.metadata.annotations:
+        return
+
+    bucket_external_name = observed_bucket.metadata.annotations[
+        "crossplane.io/external-name"
+    ]
+
+    desired_acl = aclv1beta1.BucketACL(
         apiVersion="s3.aws.upbound.io/v1beta1",
         kind="BucketACL",
-        metadata=metav1.ObjectMeta(
-            name=xr_name + "-acl",
-        ),
         spec=aclv1beta1.Spec(
             forProvider=aclv1beta1.ForProvider(
                 region=params.region,
-                bucketRef=aclv1beta1.BucketRef(
-                    name=bucket_name,
-                ),
+                bucket=bucket_external_name,
                 acl=params.acl,
             ),
         ),
     )
-    resource.update(rsp.desired.resources["acl"], acl)
+    resource.update(rsp.desired.resources["acl"], desired_acl)
 
-    sse = ssev1beta1.BucketServerSideEncryptionConfiguration(
+    desired_sse = ssev1beta1.BucketServerSideEncryptionConfiguration(
         apiVersion="s3.aws.upbound.io/v1beta1",
         kind="BucketServerSideEncryptionConfiguration",
-        metadata=metav1.ObjectMeta(
-            name=xr_name + "-encryption",
-        ),
         spec=ssev1beta1.Spec(
             forProvider=ssev1beta1.ForProvider(
                 region=params.region,
-                bucketRef=ssev1beta1.BucketRef(
-                    name=bucket_name,
-                ),
+                bucket=bucket_external_name,
                 rule=[
                     ssev1beta1.RuleItem(
                         applyServerSideEncryptionByDefault=[
@@ -74,23 +79,20 @@ def compose(req: fnv1.RunFunctionRequest, rsp: fnv1.RunFunctionResponse):
             ),
         ),
     )
-    resource.update(rsp.desired.resources["sse"], sse)
+    resource.update(rsp.desired.resources["sse"], desired_sse)
 
+    # Return early without composing a BucketVersioning MR if the XR doesn't
+    # have versioning enabled.
     if not params.versioning:
         return
 
-    versioning = verv1beta1.BucketVersioning(
+    desired_versioning = verv1beta1.BucketVersioning(
         apiVersion="s3.aws.upbound.io/v1beta1",
         kind="BucketVersioning",
-        metadata=metav1.ObjectMeta(
-            name=xr_name + "-versioning",
-        ),
         spec=verv1beta1.Spec(
             forProvider=verv1beta1.ForProvider(
                 region=params.region,
-                bucketRef=verv1beta1.BucketRef(
-                    name=bucket_name,
-                ),
+                bucket=bucket_external_name,
                 versioningConfiguration=[
                     verv1beta1.VersioningConfigurationItem(
                         status="Enabled",
@@ -99,4 +101,4 @@ def compose(req: fnv1.RunFunctionRequest, rsp: fnv1.RunFunctionResponse):
             ),
         ),
     )
-    resource.update(rsp.desired.resources["versioning"], versioning)
+    resource.update(rsp.desired.resources["versioning"], desired_versioning)
