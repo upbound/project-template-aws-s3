@@ -5,7 +5,10 @@ from model.com.example.platform.xstoragebucket import v1alpha1
 from model.io.upbound.aws.s3.bucket import v1beta1 as bucketv1beta1
 from model.io.upbound.aws.s3.bucketacl import v1beta1 as aclv1beta1
 from model.io.upbound.aws.s3.bucketversioning import v1beta1 as verv1beta1
-from model.io.upbound.aws.s3.bucketserversideencryptionconfiguration import v1beta1 as ssev1beta1
+from model.io.upbound.aws.s3.bucketserversideencryptionconfiguration import (
+    v1beta1 as ssev1beta1,
+)
+
 
 def compose(req: fnv1.RunFunctionRequest, rsp: fnv1.RunFunctionResponse):
     observed_xr = v1alpha1.XStorageBucket(**req.observed.composite.resource)
@@ -37,7 +40,7 @@ def compose(req: fnv1.RunFunctionRequest, rsp: fnv1.RunFunctionResponse):
             forProvider=aclv1beta1.ForProvider(
                 region=params.region,
                 bucketRef=aclv1beta1.BucketRef(
-                    name = bucket_name,
+                    name=bucket_name,
                 ),
                 acl=params.acl,
             ),
@@ -91,6 +94,6 @@ def compose(req: fnv1.RunFunctionRequest, rsp: fnv1.RunFunctionResponse):
                         ),
                     ],
                 ),
-            )
+            ),
         )
         resource.update(rsp.desired.resources[versioning.metadata.name], versioning)
