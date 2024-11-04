@@ -8,19 +8,19 @@ from .model.io.upbound.aws.s3.bucketversioning import v1beta1 as verv1beta1
 from .model.io.upbound.aws.s3.bucketserversideencryptionconfiguration import v1beta1 as ssev1beta1
 
 def compose(req: fnv1.RunFunctionRequest, rsp: fnv1.RunFunctionResponse):
-    observedXR = v1alpha1.XStorageBucket(**req.observed.composite.resource)
-    xrName = observedXR.metadata.name
-    bucketName = xrName + "-bucket"
+    observed_xr = v1alpha1.XStorageBucket(**req.observed.composite.resource)
+    xr_name = observed_xr.metadata.name
+    bucket_name = xr_name + "-bucket"
 
     bucket = bucketv1beta1.Bucket(
         apiVersion="s3.aws.upbound.io/v1beta1",
         kind="Bucket",
         metadata=metav1.ObjectMeta(
-            name=bucketName,
+            name=bucket_name,
         ),
         spec=bucketv1beta1.Spec(
             forProvider=bucketv1beta1.ForProvider(
-                region=observedXR.spec.region,
+                region=observed_xr.spec.region,
             ),
         ),
     )
@@ -30,15 +30,15 @@ def compose(req: fnv1.RunFunctionRequest, rsp: fnv1.RunFunctionResponse):
         apiVersion="s3.aws.upbound.io/v1beta1",
         kind="BucketACL",
         metadata=metav1.ObjectMeta(
-            name=xrName + "-acl",
+            name=xr_name + "-acl",
         ),
         spec=aclv1beta1.Spec(
             forProvider=aclv1beta1.ForProvider(
-                region=observedXR.spec.region,
+                region=observed_xr.spec.region,
                 bucketRef=aclv1beta1.BucketRef(
-                    name = bucketName,
+                    name = bucket_name,
                 ),
-                acl=observedXR.spec.acl,
+                acl=observed_xr.spec.acl,
             ),
         ),
     )
@@ -48,13 +48,13 @@ def compose(req: fnv1.RunFunctionRequest, rsp: fnv1.RunFunctionResponse):
         apiVersion="s3.aws.upbound.io/v1beta1",
         kind="BucketServerSideEncryptionConfiguration",
         metadata=metav1.ObjectMeta(
-            name=xrName + "-encryption",
+            name=xr_name + "-encryption",
         ),
         spec=ssev1beta1.Spec(
             forProvider=ssev1beta1.ForProvider(
-                region=observedXR.spec.region,
+                region=observed_xr.spec.region,
                 bucketRef=ssev1beta1.BucketRef(
-                    name=bucketName,
+                    name=bucket_name,
                 ),
                 rule=[
                     ssev1beta1.RuleItem(
@@ -71,18 +71,18 @@ def compose(req: fnv1.RunFunctionRequest, rsp: fnv1.RunFunctionResponse):
     )
     resource.update(rsp.desired.resources[sse.metadata.name], sse)
 
-    if observedXR.spec.versioning:
+    if observed_xr.spec.versioning:
         versioning = verv1beta1.BucketVersioning(
             apiVersion="s3.aws.upbound.io/v1beta1",
             kind="BucketVersioning",
             metadata=metav1.ObjectMeta(
-                name=xrName + "-versioning",
+                name=xr_name + "-versioning",
             ),
             spec=verv1beta1.Spec(
                 forProvider=verv1beta1.ForProvider(
-                    region=observedXR.spec.region,
+                    region=observed_xr.spec.region,
                     bucketRef=verv1beta1.BucketRef(
-                        name=bucketName,
+                        name=bucket_name,
                     ),
                     versioningConfiguration=[
                         verv1beta1.VersioningConfigurationItem(
