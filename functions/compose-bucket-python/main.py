@@ -76,25 +76,27 @@ def compose(req: fnv1.RunFunctionRequest, rsp: fnv1.RunFunctionResponse):
     )
     resource.update(rsp.desired.resources["sse"], sse)
 
-    if params.versioning:
-        versioning = verv1beta1.BucketVersioning(
-            apiVersion="s3.aws.upbound.io/v1beta1",
-            kind="BucketVersioning",
-            metadata=metav1.ObjectMeta(
-                name=xr_name + "-versioning",
-            ),
-            spec=verv1beta1.Spec(
-                forProvider=verv1beta1.ForProvider(
-                    region=params.region,
-                    bucketRef=verv1beta1.BucketRef(
-                        name=bucket_name,
-                    ),
-                    versioningConfiguration=[
-                        verv1beta1.VersioningConfigurationItem(
-                            status="Enabled",
-                        ),
-                    ],
+    if not params.versioning:
+        return
+
+    versioning = verv1beta1.BucketVersioning(
+        apiVersion="s3.aws.upbound.io/v1beta1",
+        kind="BucketVersioning",
+        metadata=metav1.ObjectMeta(
+            name=xr_name + "-versioning",
+        ),
+        spec=verv1beta1.Spec(
+            forProvider=verv1beta1.ForProvider(
+                region=params.region,
+                bucketRef=verv1beta1.BucketRef(
+                    name=bucket_name,
                 ),
+                versioningConfiguration=[
+                    verv1beta1.VersioningConfigurationItem(
+                        status="Enabled",
+                    ),
+                ],
             ),
-        )
-        resource.update(rsp.desired.resources["versioning"], versioning)
+        ),
+    )
+    resource.update(rsp.desired.resources["versioning"], versioning)
