@@ -29,7 +29,7 @@ def compose(req: fnv1.RunFunctionRequest, rsp: fnv1.RunFunctionResponse):
             ),
         ),
     )
-    resource.update(rsp.desired.resources[bucket.metadata.name], bucket)
+    resource.update(rsp.desired.resources["bucket"], bucket)
 
     acl = aclv1beta1.BucketACL(
         apiVersion="s3.aws.upbound.io/v1beta1",
@@ -47,7 +47,7 @@ def compose(req: fnv1.RunFunctionRequest, rsp: fnv1.RunFunctionResponse):
             ),
         ),
     )
-    resource.update(rsp.desired.resources[acl.metadata.name], acl)
+    resource.update(rsp.desired.resources["acl"], acl)
 
     sse = ssev1beta1.BucketServerSideEncryptionConfiguration(
         apiVersion="s3.aws.upbound.io/v1beta1",
@@ -74,7 +74,7 @@ def compose(req: fnv1.RunFunctionRequest, rsp: fnv1.RunFunctionResponse):
             ),
         ),
     )
-    resource.update(rsp.desired.resources[sse.metadata.name], sse)
+    resource.update(rsp.desired.resources["sse"], sse)
 
     if params.versioning:
         versioning = verv1beta1.BucketVersioning(
@@ -97,4 +97,4 @@ def compose(req: fnv1.RunFunctionRequest, rsp: fnv1.RunFunctionResponse):
                 ),
             ),
         )
-        resource.update(rsp.desired.resources[versioning.metadata.name], versioning)
+        resource.update(rsp.desired.resources["versioning"], versioning)
