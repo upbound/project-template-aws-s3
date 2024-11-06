@@ -22,13 +22,22 @@ spec:
           spec:
             description: StorageBucketSpec defines the desired state of StorageBucket.
             properties:
-              acl:
-                type: string
-              region:
-                type: string
-              versioning:
-                type: boolean
+              parameters:
+                properties:
+                  acl:
+                    type: string
+                  region:
+                    type: string
+                  versioning:
+                    type: boolean
+                type: object
+                required:
+                - acl
+                - region
+                - versioning
             type: object
+            required:
+            - parameters
           status:
             description: StorageBucketStatus defines the observed state of StorageBucket.
             type: object
@@ -36,3 +45,11 @@ spec:
         - spec
         type: object
     served: true
+status:
+  controllers:
+    compositeResourceClaimType:
+      apiVersion: ""
+      kind: ""
+    compositeResourceType:
+      apiVersion: ""
+      kind: ""

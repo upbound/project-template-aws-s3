@@ -4,6 +4,7 @@ metadata:
   name: example
   namespace: default
 spec:
-  region: us-west-1
-  versioning: true
-  acl: public
+  parameters:
+    region: us-west-1
+    versioning: true
+    acl: public
