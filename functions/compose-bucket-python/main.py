@@ -1,16 +1,17 @@
 from crossplane.function import resource
 from crossplane.function.proto.v1 import run_function_pb2 as fnv1
-from .model.io.k8s.apimachinery.pkg.apis.meta import v1 as metav1
-from .model.com.example.platform.xstoragebucket import v1alpha1
-from .model.io.upbound.aws.s3.bucket import v1beta1 as bucketv1beta1
-from .model.io.upbound.aws.s3.bucketacl import v1beta1 as aclv1beta1
-from .model.io.upbound.aws.s3.bucketversioning import v1beta1 as verv1beta1
-from .model.io.upbound.aws.s3.bucketserversideencryptionconfiguration import v1beta1 as ssev1beta1
+from model.io.k8s.apimachinery.pkg.apis.meta import v1 as metav1
+from model.com.example.platform.xstoragebucket import v1alpha1
+from model.io.upbound.aws.s3.bucket import v1beta1 as bucketv1beta1
+from model.io.upbound.aws.s3.bucketacl import v1beta1 as aclv1beta1
+from model.io.upbound.aws.s3.bucketversioning import v1beta1 as verv1beta1
+from model.io.upbound.aws.s3.bucketserversideencryptionconfiguration import v1beta1 as ssev1beta1
 
 def compose(req: fnv1.RunFunctionRequest, rsp: fnv1.RunFunctionResponse):
     observed_xr = v1alpha1.XStorageBucket(**req.observed.composite.resource)
     xr_name = observed_xr.metadata.name
     bucket_name = xr_name + "-bucket"
+    params = observed_xr.spec.parameters
 
     bucket = bucketv1beta1.Bucket(
         apiVersion="s3.aws.upbound.io/v1beta1",
@@ -20,7 +21,7 @@ def compose(req: fnv1.RunFunctionRequest, rsp: fnv1.RunFunctionResponse):
         ),
         spec=bucketv1beta1.Spec(
             forProvider=bucketv1beta1.ForProvider(
-                region=observed_xr.spec.region,
+                region=params.region,
             ),
         ),
     )
@@ -34,11 +35,11 @@ def compose(req: fnv1.RunFunctionRequest, rsp: fnv1.RunFunctionResponse):
         ),
         spec=aclv1beta1.Spec(
             forProvider=aclv1beta1.ForProvider(
-                region=observed_xr.spec.region,
+                region=params.region,
                 bucketRef=aclv1beta1.BucketRef(
                     name = bucket_name,
                 ),
-                acl=observed_xr.spec.acl,
+                acl=params.acl,
             ),
         ),
     )
@@ -52,7 +53,7 @@ def compose(req: fnv1.RunFunctionRequest, rsp: fnv1.RunFunctionResponse):
         ),
         spec=ssev1beta1.Spec(
             forProvider=ssev1beta1.ForProvider(
-                region=observed_xr.spec.region,
+                region=params.region,
                 bucketRef=ssev1beta1.BucketRef(
                     name=bucket_name,
                 ),
@@ -71,7 +72,7 @@ def compose(req: fnv1.RunFunctionRequest, rsp: fnv1.RunFunctionResponse):
     )
     resource.update(rsp.desired.resources[sse.metadata.name], sse)
 
-    if observed_xr.spec.versioning:
+    if params.versioning:
         versioning = verv1beta1.BucketVersioning(
             apiVersion="s3.aws.upbound.io/v1beta1",
             kind="BucketVersioning",
@@ -80,7 +81,7 @@ def compose(req: fnv1.RunFunctionRequest, rsp: fnv1.RunFunctionResponse):
             ),
             spec=verv1beta1.Spec(
                 forProvider=verv1beta1.ForProvider(
-                    region=observed_xr.spec.region,
+                    region=params.region,
                     bucketRef=verv1beta1.BucketRef(
                         name=bucket_name,
                     ),
