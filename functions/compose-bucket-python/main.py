@@ -5,6 +5,8 @@ from .model.io.k8s.apimachinery.pkg.apis.meta import v1 as metav1
 from .model.com.example.platform.xstoragebucket import v1alpha1
 from .model.io.upbound.aws.s3.bucket import v1beta1 as bucketv1beta1
 from .model.io.upbound.aws.s3.bucketacl import v1beta1 as aclv1beta1
+from .model.io.upbound.aws.s3.bucketownershipcontrols import v1beta1 as bocv1beta1
+from .model.io.upbound.aws.s3.bucketpublicaccessblock import v1beta1 as pabv1beta1
 from .model.io.upbound.aws.s3.bucketversioning import v1beta1 as verv1beta1
 from .model.io.upbound.aws.s3.bucketserversideencryptionconfiguration import (
     v1beta1 as ssev1beta1,
@@ -58,6 +60,39 @@ def compose(req: fnv1.RunFunctionRequest, rsp: fnv1.RunFunctionResponse):
         ),
     )
     resource.update(rsp.desired.resources["acl"], desired_acl)
+
+    desired_boc = bocv1beta1.BucketOwnershipControls(
+        apiVersion="s3.aws.upbound.io/v1beta1",
+        kind="BucketOwnershipControls",
+        spec=bocv1beta1.Spec(
+            forProvider=bocv1beta1.ForProvider(
+                region=params.region,
+                bucket=bucket_external_name,
+                rule=[
+                    bocv1beta1.RuleItem(
+                        objectOwnership="BucketOwnerPreferred",
+                    ),
+                ],
+            )
+        ),
+    )
+    resource.update(rsp.desired.resources["boc"], desired_boc)
+
+    desired_pab = pabv1beta1.BucketPublicAccessBlock(
+        apiVersion="s3.aws.upbound.io/v1beta1",
+        kind="BucketPublicAccessBlock",
+        spec=pabv1beta1.Spec(
+            forProvider=pabv1beta1.ForProvider(
+                region=params.region,
+                bucket=bucket_external_name,
+                blockPublicAcls=False,
+                ignorePublicAcls=False,
+                restrictPublicBuckets=False,
+                blockPublicPolicy=False,
+            )
+        ),
+    )
+    resource.update(rsp.desired.resources["pab"], desired_pab)
 
     desired_sse = ssev1beta1.BucketServerSideEncryptionConfiguration(
         apiVersion="s3.aws.upbound.io/v1beta1",
