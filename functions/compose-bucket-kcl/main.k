@@ -1,8 +1,7 @@
-
 import models.io.upbound.aws.s3.v1beta1 as s3v1beta1
+import models.com.example.platform.v1alpha1.xstoragebucket as xstoragebucketv1alpha1
 
-oxr = option("params").oxr # observed composite resource
-params = oxr.spec.parameters
+oxr = xstoragebucketv1alpha1.XStorageBucket{**option("params").oxr}
 
 bucketName = "{}-bucket".format(oxr.metadata.name)
 
@@ -21,7 +20,7 @@ _items: [any] = [
         metadata: _metadata(bucketName)
         spec = {
             forProvider = {
-                region = params.region
+                region = oxr.spec.parameters.region
             }
         }
     },
@@ -32,7 +31,7 @@ _items: [any] = [
                 bucketRef = {
                     name = bucketName
                 }
-                region = params.region
+                region = oxr.spec.parameters.region
                 rule:[{
                     objectOwnership:"BucketOwnerPreferred"
                 }]
@@ -46,7 +45,7 @@ _items: [any] = [
                 bucketRef = {
                     name = bucketName
                 }
-                region = params.region
+                region = oxr.spec.parameters.region
                 blockPublicAcls: False
                 ignorePublicAcls: False
                 restrictPublicBuckets: False
@@ -62,8 +61,8 @@ _items: [any] = [
                 bucketRef = {
                     name = bucketName
                 }
-                region = params.region
-                acl = params.acl
+                region = oxr.spec.parameters.region
+                acl = oxr.spec.parameters.acl
             }
         }
     },
@@ -72,7 +71,7 @@ _items: [any] = [
         metadata: _metadata("{}-encryption".format(oxr.metadata.name))
         spec = {
             forProvider = {
-                region = params.region
+                region = oxr.spec.parameters.region
                 bucketRef = {
                     name = bucketName
                 }
@@ -92,13 +91,13 @@ _items: [any] = [
 ]
 
 # Set up versioning for the bucket if desired
-if params.versioning:
+if oxr.spec.parameters.versioning:
     _items += [
         s3v1beta1.BucketVersioning{
             metadata: _metadata("{}-versioning".format(oxr.metadata.name))
             spec = {
                 forProvider = {
-                    region = params.region
+                    region = oxr.spec.parameters.region
                     bucketRef = {
                         name = bucketName
                     }
