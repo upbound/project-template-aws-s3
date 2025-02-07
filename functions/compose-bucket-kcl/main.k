@@ -1,7 +1,9 @@
 import models.io.upbound.aws.s3.v1beta1 as s3v1beta1
 import models.com.example.platform.v1alpha1.xstoragebucket as xstoragebucketv1alpha1
 
-oxr = xstoragebucketv1alpha1.XStorageBucket{**option("params").oxr}
+oxr = option("params").oxr
+# https://github.com/upbound/up/pull/432
+# oxr = xstoragebucketv1alpha1.XStorageBucket{**option("params").oxr}
 
 bucketName = "{}-bucket".format(oxr.metadata.name)
 
