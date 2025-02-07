@@ -4,8 +4,8 @@ metadata:
   name: example-project-aws
 spec:
   dependsOn:
-  - provider: xpkg.upbound.io/upbound/provider-aws-s3
-    version: '>=v1.17.0'
+  - provider: docker.io/adamwg/provider-aws-s3
+    version: 'v1.20.0'
   - function: xpkg.upbound.io/crossplane-contrib/function-auto-ready
     version: '>=v0.0.0'
   description: This is where you can describe your project.
