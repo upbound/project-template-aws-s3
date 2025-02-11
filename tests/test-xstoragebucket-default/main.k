@@ -5,7 +5,7 @@ _items = [
     metav1alpha1.CompositionTest{
         metadata.name="test-xstoragebucket-default"
         spec= {
-            assert: []
+            assertResources: []
             compositionPath: "apis/xstoragebuckets/composition.yaml"
             xrPath: "examples/xstoragebuckets/example.yaml"
             xrdPath: "apis/xstoragebuckets/definition.yaml"

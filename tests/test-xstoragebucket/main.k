@@ -7,7 +7,7 @@ _items = [
     metav1alpha1.CompositionTest{
         metadata.name="test-xstoragebucket"
         spec= {
-            assert: [
+            assertResources: [
                 platformv1alpha1.XStorageBucket{
                     metadata.name: "example"
                     spec.parameters: {
