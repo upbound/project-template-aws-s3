@@ -28,6 +28,7 @@ spec:
                     type: string
                   region:
                     type: string
+                    default: "us-west-1"
                   versioning:
                     type: boolean
                 type: object

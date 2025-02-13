@@ -1,10 +1,8 @@
 apiVersion: platform.example.com/v1alpha1
-kind: StorageBucket
+kind: XStorageBucket
 metadata:
   name: example
-  namespace: default
 spec:
   parameters:
-    region: us-west-1
     versioning: true
     acl: public-read
