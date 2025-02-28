@@ -34,19 +34,19 @@ provider_config = providerconfig.ProviderConfig(
 
 test = e2etest.E2ETest(
     metadata=k8s.ObjectMeta(
-        name="",
+        name="e2etest-xstoragebucket-python",
     ),
     spec=e2etest.Spec(
         crossplane=e2etest.Crossplane(
             autoUpgrade=e2etest.AutoUpgrade(
-                channel="Rapid",
+                channel=e2etest.Channel.Rapid,
             ),
         ),
         defaultConditions=[
             "Ready",
         ],
-        manifests=[bucket_manifest.model_dump(exclude_defaults=True, by_alias=True)],
-        extraResources=[provider_config.model_dump(exclude_defaults=True, by_alias=True)],
+        manifests=[bucket_manifest.model_dump()],
+        extraResources=[provider_config.model_dump()],
         skipDelete=False,
         timeoutSeconds=4500,
     )
