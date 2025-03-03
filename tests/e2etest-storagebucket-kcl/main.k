@@ -4,15 +4,18 @@ import models.io.upbound.dev.meta.v1alpha1 as metav1alpha1
 
 _items = [
     metav1alpha1.E2ETest{
-        metadata.name = "xstoragebucket"
+        metadata.name = "e2etest-storagebucket-kcl"
         spec = {
             crossplane.autoUpgrade.channel = "Rapid"
             defaultConditions = [
                 "Ready"
             ]
             manifests = [
-                platformv1alpha1.XStorageBucket{
-                    metadata.name = "uptest-bucket-xr"
+                platformv1alpha1.StorageBucket{
+                    metadata = {
+                        name = "uptest-bucket-claim"
+                        namespace = "default"
+                    }
                     spec.parameters = {
                         acl = "private"
                         region = "eu-central-1"
@@ -20,7 +23,7 @@ _items = [
                     }
                 }
             ]
-            extraResources = [
+            extraResources= [
                 awsv1beta1.ProviderConfig{
                     metadata.name = "default"
                     spec.credentials = {
@@ -37,3 +40,4 @@ _items = [
     }
 ]
 items = _items
+

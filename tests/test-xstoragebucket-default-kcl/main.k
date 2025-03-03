@@ -1,9 +1,8 @@
-
 import models.io.upbound.dev.meta.v1alpha1 as metav1alpha1
 
 _items = [
     metav1alpha1.CompositionTest{
-        metadata.name="test-xstoragebucket-default"
+        metadata.name="test-xstoragebucket-default-kcl"
         spec= {
             assertResources: []
             compositionPath: "apis/xstoragebuckets/composition.yaml"
