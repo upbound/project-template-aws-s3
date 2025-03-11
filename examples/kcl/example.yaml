@@ -1,0 +1,12 @@
+apiVersion: platform.example.com/v1alpha1
+kind: XStorageBucket
+metadata:
+  name: example-kcl
+spec:
+  compositionSelector:
+    matchLabels:
+      language: kcl
+  parameters:
+    region: us-west-1
+    versioning: true
+    acl: public-read

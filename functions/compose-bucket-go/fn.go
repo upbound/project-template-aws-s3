@@ -79,7 +79,7 @@ func (f *Function) RunFunction(_ context.Context, req *fnv1.RunFunctionRequest) 
 	}()
 
 	bucket := &v1beta1.Bucket{
-		ApiVersion: ptr.To("s3.aws.upbound.io/v1beta1"),
+		APIVersion: ptr.To("s3.aws.upbound.io/v1beta1"),
 		Kind:       ptr.To("Bucket"),
 		Spec: &v1beta1.BucketSpec{
 			ForProvider: &v1beta1.BucketSpecForProvider{
@@ -108,20 +108,20 @@ func (f *Function) RunFunction(_ context.Context, req *fnv1.RunFunctionRequest) 
 	}
 
 	acl := &v1beta1.BucketACL{
-		ApiVersion: ptr.To("s3.aws.upbound.io/v1beta1"),
+		APIVersion: ptr.To("s3.aws.upbound.io/v1beta1"),
 		Kind:       ptr.To("BucketACL"),
 		Spec: &v1beta1.BucketACLSpec{
 			ForProvider: &v1beta1.BucketACLSpecForProvider{
 				Bucket: &bucketExternalName,
 				Region: params.Region,
-				Acl:    params.Acl,
+				ACL:    params.ACL,
 			},
 		},
 	}
 	desiredComposed["acl"] = acl
 
 	boc := &v1beta1.BucketOwnershipControls{
-		ApiVersion: ptr.To("s3.aws.upbound.io/v1beta1"),
+		APIVersion: ptr.To("s3.aws.upbound.io/v1beta1"),
 		Kind:       ptr.To("BucketOwnershipControls"),
 		Spec: &v1beta1.BucketOwnershipControlsSpec{
 			ForProvider: &v1beta1.BucketOwnershipControlsSpecForProvider{
@@ -136,7 +136,7 @@ func (f *Function) RunFunction(_ context.Context, req *fnv1.RunFunctionRequest) 
 	desiredComposed["boc"] = boc
 
 	pab := &v1beta1.BucketPublicAccessBlock{
-		ApiVersion: ptr.To("s3.aws.upbound.io/v1beta1"),
+		APIVersion: ptr.To("s3.aws.upbound.io/v1beta1"),
 		Kind:       ptr.To("BucketPublicAccessBlock"),
 		Spec: &v1beta1.BucketPublicAccessBlockSpec{
 			ForProvider: &v1beta1.BucketPublicAccessBlockSpecForProvider{
@@ -152,7 +152,7 @@ func (f *Function) RunFunction(_ context.Context, req *fnv1.RunFunctionRequest) 
 	desiredComposed["pab"] = pab
 
 	sse := &v1beta1.BucketServerSideEncryptionConfiguration{
-		ApiVersion: ptr.To("s3.aws.upbound.io/v1beta1"),
+		APIVersion: ptr.To("s3.aws.upbound.io/v1beta1"),
 		Kind:       ptr.To("BucketServerSideEncryptionConfiguration"),
 		Spec: &v1beta1.BucketServerSideEncryptionConfigurationSpec{
 			ForProvider: &v1beta1.BucketServerSideEncryptionConfigurationSpecForProvider{
@@ -171,7 +171,7 @@ func (f *Function) RunFunction(_ context.Context, req *fnv1.RunFunctionRequest) 
 
 	if params.Versioning != nil && *params.Versioning {
 		versioning := &v1beta1.BucketVersioning{
-			ApiVersion: ptr.To("s3.aws.upbound.io/v1beta1"),
+			APIVersion: ptr.To("s3.aws.upbound.io/v1beta1"),
 			Kind:       ptr.To("BucketVersioning"),
 			Spec: &v1beta1.BucketVersioningSpec{
 				ForProvider: &v1beta1.BucketVersioningSpecForProvider{

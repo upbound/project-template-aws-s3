@@ -45,7 +45,7 @@ func TestRunFunction(t *testing.T) {
 							Spec: &v1alpha1.XStorageBucketSpec{
 								Parameters: &v1alpha1.XStorageBucketSpecParameters{
 									Region:     ptr.To("us-east-1"),
-									Acl:        ptr.To("private"),
+									ACL:        ptr.To("private"),
 									Versioning: ptr.To(false),
 								},
 							},
@@ -64,7 +64,7 @@ func TestRunFunction(t *testing.T) {
 					Desired: &fnv1.State{
 						Resources: map[string]*fnv1.Resource{
 							"bucket": toResource(&v1beta1.Bucket{
-								ApiVersion: ptr.To("s3.aws.upbound.io/v1beta1"),
+								APIVersion: ptr.To("s3.aws.upbound.io/v1beta1"),
 								Kind:       ptr.To("Bucket"),
 								Spec: &v1beta1.BucketSpec{
 									ForProvider: &v1beta1.BucketSpecForProvider{
@@ -87,14 +87,14 @@ func TestRunFunction(t *testing.T) {
 							Spec: &v1alpha1.XStorageBucketSpec{
 								Parameters: &v1alpha1.XStorageBucketSpecParameters{
 									Region:     ptr.To("us-east-1"),
-									Acl:        ptr.To("private"),
+									ACL:        ptr.To("private"),
 									Versioning: ptr.To(false),
 								},
 							},
 						}),
 						Resources: map[string]*fnv1.Resource{
 							"bucket": toResource(&v1beta1.Bucket{
-								ApiVersion: ptr.To("s3.aws.upbound.io/v1beta1"),
+								APIVersion: ptr.To("s3.aws.upbound.io/v1beta1"),
 								Kind:       ptr.To("Bucket"),
 								Metadata: &v1.ObjectMeta{
 									Annotations: &map[string]string{
@@ -118,7 +118,7 @@ func TestRunFunction(t *testing.T) {
 					Desired: &fnv1.State{
 						Resources: map[string]*fnv1.Resource{
 							"bucket": toResource(&v1beta1.Bucket{
-								ApiVersion: ptr.To("s3.aws.upbound.io/v1beta1"),
+								APIVersion: ptr.To("s3.aws.upbound.io/v1beta1"),
 								Kind:       ptr.To("Bucket"),
 								Spec: &v1beta1.BucketSpec{
 									ForProvider: &v1beta1.BucketSpecForProvider{
@@ -127,18 +127,18 @@ func TestRunFunction(t *testing.T) {
 								},
 							}),
 							"acl": toResource(&v1beta1.BucketACL{
-								ApiVersion: ptr.To("s3.aws.upbound.io/v1beta1"),
+								APIVersion: ptr.To("s3.aws.upbound.io/v1beta1"),
 								Kind:       ptr.To("BucketACL"),
 								Spec: &v1beta1.BucketACLSpec{
 									ForProvider: &v1beta1.BucketACLSpecForProvider{
 										Bucket: ptr.To("my-bukkit"),
 										Region: ptr.To("us-east-1"),
-										Acl:    ptr.To("private"),
+										ACL:    ptr.To("private"),
 									},
 								},
 							}),
 							"boc": toResource(&v1beta1.BucketOwnershipControls{
-								ApiVersion: ptr.To("s3.aws.upbound.io/v1beta1"),
+								APIVersion: ptr.To("s3.aws.upbound.io/v1beta1"),
 								Kind:       ptr.To("BucketOwnershipControls"),
 								Spec: &v1beta1.BucketOwnershipControlsSpec{
 									ForProvider: &v1beta1.BucketOwnershipControlsSpecForProvider{
@@ -151,7 +151,7 @@ func TestRunFunction(t *testing.T) {
 								},
 							}),
 							"pab": toResource(&v1beta1.BucketPublicAccessBlock{
-								ApiVersion: ptr.To("s3.aws.upbound.io/v1beta1"),
+								APIVersion: ptr.To("s3.aws.upbound.io/v1beta1"),
 								Kind:       ptr.To("BucketPublicAccessBlock"),
 								Spec: &v1beta1.BucketPublicAccessBlockSpec{
 									ForProvider: &v1beta1.BucketPublicAccessBlockSpecForProvider{
@@ -165,7 +165,7 @@ func TestRunFunction(t *testing.T) {
 								},
 							}),
 							"sse": toResource(&v1beta1.BucketServerSideEncryptionConfiguration{
-								ApiVersion: ptr.To("s3.aws.upbound.io/v1beta1"),
+								APIVersion: ptr.To("s3.aws.upbound.io/v1beta1"),
 								Kind:       ptr.To("BucketServerSideEncryptionConfiguration"),
 								Spec: &v1beta1.BucketServerSideEncryptionConfigurationSpec{
 									ForProvider: &v1beta1.BucketServerSideEncryptionConfigurationSpecForProvider{
@@ -195,14 +195,14 @@ func TestRunFunction(t *testing.T) {
 							Spec: &v1alpha1.XStorageBucketSpec{
 								Parameters: &v1alpha1.XStorageBucketSpecParameters{
 									Region:     ptr.To("us-east-1"),
-									Acl:        ptr.To("private"),
+									ACL:        ptr.To("private"),
 									Versioning: ptr.To(true),
 								},
 							},
 						}),
 						Resources: map[string]*fnv1.Resource{
 							"bucket": toResource(&v1beta1.Bucket{
-								ApiVersion: ptr.To("s3.aws.upbound.io/v1beta1"),
+								APIVersion: ptr.To("s3.aws.upbound.io/v1beta1"),
 								Kind:       ptr.To("Bucket"),
 								Metadata: &v1.ObjectMeta{
 									Annotations: &map[string]string{
@@ -226,7 +226,7 @@ func TestRunFunction(t *testing.T) {
 					Desired: &fnv1.State{
 						Resources: map[string]*fnv1.Resource{
 							"bucket": toResource(&v1beta1.Bucket{
-								ApiVersion: ptr.To("s3.aws.upbound.io/v1beta1"),
+								APIVersion: ptr.To("s3.aws.upbound.io/v1beta1"),
 								Kind:       ptr.To("Bucket"),
 								Spec: &v1beta1.BucketSpec{
 									ForProvider: &v1beta1.BucketSpecForProvider{
@@ -235,18 +235,18 @@ func TestRunFunction(t *testing.T) {
 								},
 							}),
 							"acl": toResource(&v1beta1.BucketACL{
-								ApiVersion: ptr.To("s3.aws.upbound.io/v1beta1"),
+								APIVersion: ptr.To("s3.aws.upbound.io/v1beta1"),
 								Kind:       ptr.To("BucketACL"),
 								Spec: &v1beta1.BucketACLSpec{
 									ForProvider: &v1beta1.BucketACLSpecForProvider{
 										Bucket: ptr.To("my-bukkit"),
 										Region: ptr.To("us-east-1"),
-										Acl:    ptr.To("private"),
+										ACL:    ptr.To("private"),
 									},
 								},
 							}),
 							"boc": toResource(&v1beta1.BucketOwnershipControls{
-								ApiVersion: ptr.To("s3.aws.upbound.io/v1beta1"),
+								APIVersion: ptr.To("s3.aws.upbound.io/v1beta1"),
 								Kind:       ptr.To("BucketOwnershipControls"),
 								Spec: &v1beta1.BucketOwnershipControlsSpec{
 									ForProvider: &v1beta1.BucketOwnershipControlsSpecForProvider{
@@ -259,7 +259,7 @@ func TestRunFunction(t *testing.T) {
 								},
 							}),
 							"pab": toResource(&v1beta1.BucketPublicAccessBlock{
-								ApiVersion: ptr.To("s3.aws.upbound.io/v1beta1"),
+								APIVersion: ptr.To("s3.aws.upbound.io/v1beta1"),
 								Kind:       ptr.To("BucketPublicAccessBlock"),
 								Spec: &v1beta1.BucketPublicAccessBlockSpec{
 									ForProvider: &v1beta1.BucketPublicAccessBlockSpecForProvider{
@@ -273,7 +273,7 @@ func TestRunFunction(t *testing.T) {
 								},
 							}),
 							"sse": toResource(&v1beta1.BucketServerSideEncryptionConfiguration{
-								ApiVersion: ptr.To("s3.aws.upbound.io/v1beta1"),
+								APIVersion: ptr.To("s3.aws.upbound.io/v1beta1"),
 								Kind:       ptr.To("BucketServerSideEncryptionConfiguration"),
 								Spec: &v1beta1.BucketServerSideEncryptionConfigurationSpec{
 									ForProvider: &v1beta1.BucketServerSideEncryptionConfigurationSpecForProvider{
@@ -289,7 +289,7 @@ func TestRunFunction(t *testing.T) {
 								},
 							}),
 							"versioning": toResource(&v1beta1.BucketVersioning{
-								ApiVersion: ptr.To("s3.aws.upbound.io/v1beta1"),
+								APIVersion: ptr.To("s3.aws.upbound.io/v1beta1"),
 								Kind:       ptr.To("BucketVersioning"),
 								Spec: &v1beta1.BucketVersioningSpec{
 									ForProvider: &v1beta1.BucketVersioningSpecForProvider{
