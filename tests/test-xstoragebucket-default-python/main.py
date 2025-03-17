@@ -7,8 +7,8 @@ test = compositiontest.CompositionTest(
     ),
     spec = compositiontest.Spec(
         assertResources=[],
-        compositionPath="apis/xstoragebuckets/composition.yaml",
-        xrPath="examples/xstoragebuckets/example.yaml",
+        compositionPath="apis/python/composition.yaml",
+        xrPath="examples/python/example.yaml",
         xrdPath="apis/xstoragebuckets/definition.yaml",
         timeoutSeconds=120,
         validate=False,
