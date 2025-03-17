@@ -5,8 +5,8 @@ _items = [
         metadata.name="test-xstoragebucket-default-kcl"
         spec= {
             assertResources: []
-            compositionPath: "apis/xstoragebuckets/composition.yaml"
-            xrPath: "examples/xstoragebuckets/example.yaml"
+            compositionPath: "apis/kcl/composition.yaml"
+            xrPath: "examples/kcl/example.yaml"
             xrdPath: "apis/xstoragebuckets/definition.yaml"
             timeoutSeconds: 120
             validate: False
