@@ -127,7 +127,7 @@ func (f *Function) RunFunction(_ context.Context, req *fnv1.RunFunctionRequest) 
 			ForProvider: &v1beta1.BucketOwnershipControlsSpecForProvider{
 				Bucket: &bucketExternalName,
 				Region: params.Region,
-				Rule: &[]v1beta1.BucketOwnershipControlsSpecForProviderRule{{
+				Rule: &[]v1beta1.BucketOwnershipControlsSpecForProviderRuleItem{{
 					ObjectOwnership: ptr.To("BucketOwnerPreferred"),
 				}},
 			},
@@ -158,8 +158,8 @@ func (f *Function) RunFunction(_ context.Context, req *fnv1.RunFunctionRequest) 
 			ForProvider: &v1beta1.BucketServerSideEncryptionConfigurationSpecForProvider{
 				Bucket: &bucketExternalName,
 				Region: params.Region,
-				Rule: &[]v1beta1.BucketServerSideEncryptionConfigurationSpecForProviderRule{{
-					ApplyServerSideEncryptionByDefault: &[]v1beta1.BucketServerSideEncryptionConfigurationSpecForProviderRuleApplyServerSideEncryptionByDefault{{
+				Rule: &[]v1beta1.BucketServerSideEncryptionConfigurationSpecForProviderRuleItem{{
+					ApplyServerSideEncryptionByDefault: &[]v1beta1.BucketServerSideEncryptionConfigurationSpecForProviderRuleItemApplyServerSideEncryptionByDefaultItem{{
 						SseAlgorithm: ptr.To("AES256"),
 					}},
 					BucketKeyEnabled: ptr.To(true),
@@ -177,7 +177,7 @@ func (f *Function) RunFunction(_ context.Context, req *fnv1.RunFunctionRequest) 
 				ForProvider: &v1beta1.BucketVersioningSpecForProvider{
 					Bucket: &bucketExternalName,
 					Region: params.Region,
-					VersioningConfiguration: &[]v1beta1.BucketVersioningSpecForProviderVersioningConfiguration{{
+					VersioningConfiguration: &[]v1beta1.BucketVersioningSpecForProviderVersioningConfigurationItem{{
 						Status: ptr.To("Enabled"),
 					}},
 				},
