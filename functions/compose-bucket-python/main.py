@@ -18,8 +18,6 @@ def compose(req: fnv1.RunFunctionRequest, rsp: fnv1.RunFunctionResponse):
     params = observed_xr.spec.parameters
 
     desired_bucket = bucketv1beta1.Bucket(
-        apiVersion="s3.aws.upbound.io/v1beta1",
-        kind="Bucket",
         spec=bucketv1beta1.Spec(
             forProvider=bucketv1beta1.ForProvider(
                 region=params.region,
@@ -49,8 +47,6 @@ def compose(req: fnv1.RunFunctionRequest, rsp: fnv1.RunFunctionResponse):
     ]
 
     desired_acl = aclv1beta1.BucketACL(
-        apiVersion="s3.aws.upbound.io/v1beta1",
-        kind="BucketACL",
         spec=aclv1beta1.Spec(
             forProvider=aclv1beta1.ForProvider(
                 region=params.region,
@@ -62,8 +58,6 @@ def compose(req: fnv1.RunFunctionRequest, rsp: fnv1.RunFunctionResponse):
     resource.update(rsp.desired.resources["acl"], desired_acl)
 
     desired_boc = bocv1beta1.BucketOwnershipControls(
-        apiVersion="s3.aws.upbound.io/v1beta1",
-        kind="BucketOwnershipControls",
         spec=bocv1beta1.Spec(
             forProvider=bocv1beta1.ForProvider(
                 region=params.region,
@@ -79,8 +73,6 @@ def compose(req: fnv1.RunFunctionRequest, rsp: fnv1.RunFunctionResponse):
     resource.update(rsp.desired.resources["boc"], desired_boc)
 
     desired_pab = pabv1beta1.BucketPublicAccessBlock(
-        apiVersion="s3.aws.upbound.io/v1beta1",
-        kind="BucketPublicAccessBlock",
         spec=pabv1beta1.Spec(
             forProvider=pabv1beta1.ForProvider(
                 region=params.region,
@@ -95,8 +87,6 @@ def compose(req: fnv1.RunFunctionRequest, rsp: fnv1.RunFunctionResponse):
     resource.update(rsp.desired.resources["pab"], desired_pab)
 
     desired_sse = ssev1beta1.BucketServerSideEncryptionConfiguration(
-        apiVersion="s3.aws.upbound.io/v1beta1",
-        kind="BucketServerSideEncryptionConfiguration",
         spec=ssev1beta1.Spec(
             forProvider=ssev1beta1.ForProvider(
                 region=params.region,
@@ -122,8 +112,6 @@ def compose(req: fnv1.RunFunctionRequest, rsp: fnv1.RunFunctionResponse):
         return
 
     desired_versioning = verv1beta1.BucketVersioning(
-        apiVersion="s3.aws.upbound.io/v1beta1",
-        kind="BucketVersioning",
         spec=verv1beta1.Spec(
             forProvider=verv1beta1.ForProvider(
                 region=params.region,
