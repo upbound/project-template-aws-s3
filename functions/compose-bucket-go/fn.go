@@ -6,8 +6,6 @@ import (
 
 	"dev.upbound.io/models/com/example/platform/v1alpha1"
 	"dev.upbound.io/models/io/upbound/aws/s3/v1beta1"
-	"k8s.io/utils/ptr"
-
 	"github.com/crossplane/crossplane-runtime/pkg/logging"
 	"github.com/crossplane/function-sdk-go/errors"
 	fnv1 "github.com/crossplane/function-sdk-go/proto/v1"
@@ -15,6 +13,7 @@ import (
 	"github.com/crossplane/function-sdk-go/resource"
 	"github.com/crossplane/function-sdk-go/resource/composed"
 	"github.com/crossplane/function-sdk-go/response"
+	"k8s.io/utils/ptr"
 )
 
 // Function is your composition function.
@@ -79,8 +78,8 @@ func (f *Function) RunFunction(_ context.Context, req *fnv1.RunFunctionRequest) 
 	}()
 
 	bucket := &v1beta1.Bucket{
-		APIVersion: ptr.To("s3.aws.upbound.io/v1beta1"),
-		Kind:       ptr.To("Bucket"),
+		APIVersion: ptr.To(v1beta1.BucketAPIVersions3AwsUpboundIoV1Beta1),
+		Kind:       ptr.To(v1beta1.BucketKindBucket),
 		Spec: &v1beta1.BucketSpec{
 			ForProvider: &v1beta1.BucketSpecForProvider{
 				Region: params.Region,
@@ -108,8 +107,8 @@ func (f *Function) RunFunction(_ context.Context, req *fnv1.RunFunctionRequest) 
 	}
 
 	acl := &v1beta1.BucketACL{
-		APIVersion: ptr.To("s3.aws.upbound.io/v1beta1"),
-		Kind:       ptr.To("BucketACL"),
+		APIVersion: ptr.To(v1beta1.BucketACLApiVersions3AwsUpboundIoV1Beta1),
+		Kind:       ptr.To(v1beta1.BucketACLKindBucketACL),
 		Spec: &v1beta1.BucketACLSpec{
 			ForProvider: &v1beta1.BucketACLSpecForProvider{
 				Bucket: &bucketExternalName,
@@ -121,8 +120,8 @@ func (f *Function) RunFunction(_ context.Context, req *fnv1.RunFunctionRequest) 
 	desiredComposed["acl"] = acl
 
 	boc := &v1beta1.BucketOwnershipControls{
-		APIVersion: ptr.To("s3.aws.upbound.io/v1beta1"),
-		Kind:       ptr.To("BucketOwnershipControls"),
+		APIVersion: ptr.To(v1beta1.BucketOwnershipControlsAPIVersions3AwsUpboundIoV1Beta1),
+		Kind:       ptr.To(v1beta1.BucketOwnershipControlsKindBucketOwnershipControls),
 		Spec: &v1beta1.BucketOwnershipControlsSpec{
 			ForProvider: &v1beta1.BucketOwnershipControlsSpecForProvider{
 				Bucket: &bucketExternalName,
@@ -136,8 +135,8 @@ func (f *Function) RunFunction(_ context.Context, req *fnv1.RunFunctionRequest) 
 	desiredComposed["boc"] = boc
 
 	pab := &v1beta1.BucketPublicAccessBlock{
-		APIVersion: ptr.To("s3.aws.upbound.io/v1beta1"),
-		Kind:       ptr.To("BucketPublicAccessBlock"),
+		APIVersion: ptr.To(v1beta1.BucketPublicAccessBlockAPIVersions3AwsUpboundIoV1Beta1),
+		Kind:       ptr.To(v1beta1.BucketPublicAccessBlockKindBucketPublicAccessBlock),
 		Spec: &v1beta1.BucketPublicAccessBlockSpec{
 			ForProvider: &v1beta1.BucketPublicAccessBlockSpecForProvider{
 				Bucket:                &bucketExternalName,
@@ -152,8 +151,8 @@ func (f *Function) RunFunction(_ context.Context, req *fnv1.RunFunctionRequest) 
 	desiredComposed["pab"] = pab
 
 	sse := &v1beta1.BucketServerSideEncryptionConfiguration{
-		APIVersion: ptr.To("s3.aws.upbound.io/v1beta1"),
-		Kind:       ptr.To("BucketServerSideEncryptionConfiguration"),
+		APIVersion: ptr.To(v1beta1.BucketServerSideEncryptionConfigurationAPIVersions3AwsUpboundIoV1Beta1),
+		Kind:       ptr.To(v1beta1.BucketServerSideEncryptionConfigurationKindBucketServerSideEncryptionConfiguration),
 		Spec: &v1beta1.BucketServerSideEncryptionConfigurationSpec{
 			ForProvider: &v1beta1.BucketServerSideEncryptionConfigurationSpecForProvider{
 				Bucket: &bucketExternalName,
@@ -171,8 +170,8 @@ func (f *Function) RunFunction(_ context.Context, req *fnv1.RunFunctionRequest) 
 
 	if params.Versioning != nil && *params.Versioning {
 		versioning := &v1beta1.BucketVersioning{
-			APIVersion: ptr.To("s3.aws.upbound.io/v1beta1"),
-			Kind:       ptr.To("BucketVersioning"),
+			APIVersion: ptr.To(v1beta1.BucketVersioningAPIVersions3AwsUpboundIoV1Beta1),
+			Kind:       ptr.To(v1beta1.BucketVersioningKindBucketVersioning),
 			Spec: &v1beta1.BucketVersioningSpec{
 				ForProvider: &v1beta1.BucketVersioningSpecForProvider{
 					Bucket: &bucketExternalName,
