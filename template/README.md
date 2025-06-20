@@ -1,4 +1,4 @@
-# example-project-aws
+# {{.ProjectName}}
 
 An example Upbound control plane project for Amazon Web Services (AWS).
 
@@ -11,15 +11,6 @@ autocompletion, and linting.
 Read the [control plane project documentation][proj-docs] to learn more about
 control plane projects.
 
-This project defines a new `StorageBucket` API, which is powered by AWS S3. It
-includes [KCL][kcl-docs] and [Python][py-docs] functions that implement the
-composition logic.
-
-The project uses the KCL function by default. Edit [`composition.yaml`][comp] to
-switch to the Python function.
-
+This project defines a new `StorageBucket` API, which is powered by AWS S3.
 
 [proj-docs]: https://docs.upbound.io/core-concepts/projects/
-[kcl-docs]: https://docs.upbound.io/core-concepts/kcl/overview/
-[py-docs]: https://docs.upbound.io/core-concepts/python/overview/
-[comp]: ./apis/xstoragebuckets/composition.yaml
