@@ -10,7 +10,7 @@ spec:
   pipeline:
   - functionRef:
       name: upbound-example-project-awscompose-bucket
-    step: compose-bucket-python
+    step: compose-bucket
   - functionRef:
       name: crossplane-contrib-function-auto-ready
     step: crossplane-contrib-function-auto-ready
