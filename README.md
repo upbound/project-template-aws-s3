@@ -10,5 +10,11 @@ e2e tests.
 To use this example, run the following command:
 
 ```shell
-up project init -e upbound/project-example-aws <project-name>
+up project init -e upbound/project-example-aws --language=kcl <project-name>
 ```
+
+This example supports the following languages:
+
+- `kcl`
+- `go`
+- `python`
