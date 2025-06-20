@@ -4,39 +4,34 @@ import models.io.upbound.dev.meta.v1alpha1 as metav1alpha1
 
 _items = [
     metav1alpha1.CompositionTest{
-        metadata.name="test-xstoragebucket-kcl"
+        metadata.name="test-xstoragebucket"
         spec= {
             assertResources: [
                 platformv1alpha1.XStorageBucket{
-                    metadata.name: "example-kcl"
+                    metadata.name: "example"
                     spec: {
                         parameters: {
                             acl: "public-read"
                             region: "us-west-1"
                             versioning: True
                         }
-                        compositionSelector:{
-                            matchLabels: {
-                                language: "kcl"
-                            }
-                        }
                     }
                 }
                 s3v1beta1.BucketACL{
-                    metadata.name: "example-kcl-acl"
+                    metadata.name: "example-acl"
                     spec.forProvider:{
                         acl: "public-read"
                         bucketRef: {
-                            name: "example-kcl-bucket"
+                            name: "example-bucket"
                         }
                         region: "us-west-1"
                     }
                 }
                 s3v1beta1.BucketOwnershipControls{
-                    metadata.name: "example-kcl-boc"
+                    metadata.name: "example-boc"
                     spec.forProvider: {
                         bucketRef: {
-                            name: "example-kcl-bucket"
+                            name: "example-bucket"
                         }
                         region: "us-west-1"
                         rule: [
@@ -47,16 +42,16 @@ _items = [
                     }
                 }
                 s3v1beta1.Bucket{
-                    metadata.name: "example-kcl-bucket"
+                    metadata.name: "example-bucket"
                     spec.forProvider: {
                         region: "us-west-1"
                     }
                 }
                 s3v1beta1.BucketServerSideEncryptionConfiguration{
-                    metadata.name: "example-kcl-encryption"
+                    metadata.name: "example-encryption"
                     spec.forProvider: {
                         bucketRef: {
-                            name: "example-kcl-bucket"
+                            name: "example-bucket"
                         }
                         region: "us-west-1"
                         rule: [
@@ -72,12 +67,12 @@ _items = [
                     }
                 }
                 s3v1beta1.BucketPublicAccessBlock{
-                    metadata.name: "example-kcl-pab"
+                    metadata.name: "example-pab"
                     spec.forProvider: {
                         blockPublicAcls: False
                         blockPublicPolicy: False
                         bucketRef: {
-                            name: "example-kcl-bucket"
+                            name: "example-bucket"
                         }
                         ignorePublicAcls: False
                         region: "us-west-1"
@@ -85,10 +80,10 @@ _items = [
                     }
                 }
                 s3v1beta1.BucketVersioning{
-                    metadata.name: "example-kcl-versioning"
+                    metadata.name: "example-versioning"
                     spec.forProvider: {
                         bucketRef: {
-                            name: "example-kcl-bucket"
+                            name: "example-bucket"
                         }
                         region: "us-west-1"
                         versioningConfiguration: [
@@ -99,9 +94,9 @@ _items = [
                     }
                 }
             ]
-            compositionPath: "apis/kcl/composition.yaml"
-            xrPath: "examples/kcl/example.yaml"
-            xrdPath: "apis/xstoragebuckets/definition.yaml"
+            compositionPath: "apis/xstoragebucket/composition.yaml"
+            xrPath: "examples/xstoragebuckets/example.yaml"
+            xrdPath: "apis/xstoragebucket/definition.yaml"
             timeoutSeconds: 120
             validate: False
         }

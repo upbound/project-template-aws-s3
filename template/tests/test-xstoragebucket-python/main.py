@@ -8,14 +8,9 @@ xStorageBucket = platformv1alpha1.XStorageBucket(
     apiVersion="platform.example.com/v1alpha1",
     kind="XStorageBucket",
     metadata=k8s.ObjectMeta(
-        name="example-python"
+        name="example"
     ),
     spec = platformv1alpha1.Spec(
-        compositionSelector=platformv1alpha1.CompositionSelector(
-            matchLabels={
-                "language": "python",
-            },
-        ),
         parameters = platformv1alpha1.Parameters(
             acl="public-read",
             region="us-west-1",
@@ -28,7 +23,7 @@ bucket = bucketv1beta1.Bucket(
     apiVersion="s3.aws.upbound.io/v1beta1",
     kind="Bucket",
     metadata=k8s.ObjectMeta(
-        name="example-python"
+        name="example"
     ),
     spec=bucketv1beta1.Spec(
         forProvider=bucketv1beta1.ForProvider(
@@ -39,15 +34,15 @@ bucket = bucketv1beta1.Bucket(
 
 test = compositiontest.CompositionTest(
     metadata=k8s.ObjectMeta(
-        name="test-xstoragebucket-python",
+        name="test-xstoragebucket",
     ),
     spec = compositiontest.Spec(
         assertResources=[
             xStorageBucket.model_dump(exclude_unset=True),
         ],
-        compositionPath="apis/python/composition.yaml",
-        xrPath="examples/python/example.yaml",
-        xrdPath="apis/xstoragebuckets/definition.yaml",
+        compositionPath="apis/xstoragebucket/composition.yaml",
+        xrPath="examples/xstoragebuckets/example.yaml",
+        xrdPath="apis/xstoragebucket/definition.yaml",
         timeoutSeconds=120,
         validate=False,
     )

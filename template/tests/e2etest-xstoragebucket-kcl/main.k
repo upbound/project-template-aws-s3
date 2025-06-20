@@ -4,7 +4,7 @@ import models.io.upbound.dev.meta.v1alpha1 as metav1alpha1
 
 _items = [
     metav1alpha1.E2ETest{
-        metadata.name = "e2etest-xstoragebucket-kcl"
+        metadata.name = "e2etest-xstoragebucket"
         spec = {
             crossplane.autoUpgrade.channel = "Rapid"
             defaultConditions = [

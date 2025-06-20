@@ -34,7 +34,7 @@ provider_config = providerconfig.ProviderConfig(
 
 test = e2etest.E2ETest(
     metadata=k8s.ObjectMeta(
-        name="e2etest-xstoragebucket-python",
+        name="e2etest-xstoragebucket",
     ),
     spec=e2etest.Spec(
         crossplane=e2etest.Crossplane(
