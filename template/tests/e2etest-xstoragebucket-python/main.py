@@ -5,7 +5,7 @@ from .model.io.upbound.aws.providerconfig import v1beta1 as providerconfig
 
 bucket_manifest = xstoragebucket.XStorageBucket(
     metadata=k8s.ObjectMeta(
-        name="uptest-bucket-xr",
+        name="uptest-bucket-xr-python",
     ),
     spec=xstoragebucket.Spec(
         parameters=xstoragebucket.Parameters(

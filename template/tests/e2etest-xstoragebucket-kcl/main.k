@@ -12,7 +12,7 @@ _items = [
             ]
             manifests = [
                 platformv1alpha1.XStorageBucket{
-                    metadata.name = "uptest-bucket-xr"
+                    metadata.name = "uptest-bucket-xr-kcl"
                     spec.parameters = {
                         acl = "private"
                         region = "eu-central-1"
