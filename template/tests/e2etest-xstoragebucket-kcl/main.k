@@ -32,7 +32,7 @@ _items = [
                 }
             ]
             skipDelete = False
-            timeoutSeconds = 4500
+            timeoutSeconds = 900 # 15 minutes
         }
     }
 ]
