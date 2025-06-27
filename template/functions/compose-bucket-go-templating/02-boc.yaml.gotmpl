@@ -1,0 +1,18 @@
+# code: language=yaml
+# yaml-language-server: $schema=../../.up/json/models/index.schema.json
+
+# Don't create the BucketOwnershipControls until the bucket name is available.
+#{{ if $bucket_external_name }}
+---
+apiVersion: s3.aws.upbound.io/v1beta1
+kind: BucketOwnershipControls
+metadata:
+  annotations:
+    {{ setResourceNameAnnotation "boc" }}
+spec:
+  forProvider:
+    region: "{{ $params.region }}"
+    bucket: "{{ $bucket_external_name }}"
+    rule:
+      - objectOwnership: BucketOwnerPreferred
+#{{ end }}
