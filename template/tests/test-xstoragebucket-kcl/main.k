@@ -1,5 +1,4 @@
 """
-
 This test suite validates the creation of resources for the XStorageBucket XR.
 
 Creation of resources happens in two sequential calls to the composition
@@ -20,6 +19,17 @@ of the dependent resources.
 import models.io.upbound.dev.meta.v1alpha1 as metav1alpha1
 import resources
 
+# It's a best practice for composition functions to return only fields whose
+# values they care about, since they become the owner of any field they
+# return. Allow for fields with defaults to be omitted by the composition
+# function by clearing them in our expected resources.
+_stripDefaults = lambda obj: any -> any {
+    obj | {
+        spec.deletionPolicy = Undefined
+        spec.managementPolicies = Undefined
+    }
+}
+
 _spec = metav1alpha1.CompositionTest {
     spec = {
         compositionPath: "apis/xstoragebucket/composition.yaml"
@@ -35,7 +45,7 @@ _test1 = metav1alpha1.CompositionTest {
     **_spec
     spec.assertResources = [
         resources._expectedXR
-        resources._expectedBucket
+        _stripDefaults(resources._expectedBucketBefore)
     ]
 }
 
@@ -47,12 +57,12 @@ _test2 = metav1alpha1.CompositionTest {
     ]
     spec.assertResources = [
         resources._expectedXR
-        resources._observedBucket
-        resources._expectedACL
-        resources._expectedBOC
-        resources._expectedPAB
-        resources._expectedEncryption
-        resources._expectedVersioning
+        _stripDefaults(resources._expectedBucketAfter)
+        _stripDefaults(resources._expectedACL)
+        _stripDefaults(resources._expectedBOC)
+        _stripDefaults(resources._expectedPAB)
+        _stripDefaults(resources._expectedEncryption)
+        _stripDefaults(resources._expectedVersioning)
     ]
 }
 

@@ -24,16 +24,14 @@ _items: [any] = [
 ]
 
 ocds = option("params").ocds
-bucketName = ocds["bucket"]?.Resource?.metadata?.name
-if bucketName:
+bucketExternalName = ocds["bucket"]?.Resource?.metadata?.annotations?["crossplane.io/external-name"]
+if bucketExternalName:
     _items += [
         s3v1beta1.BucketOwnershipControls{
             metadata: _metadata("boc")
             spec = {
                 forProvider = {
-                    bucketRef = {
-                        name = bucketName
-                    }
+                    bucket = bucketExternalName
                     region = oxr.spec.parameters.region
                     rule:[{
                         objectOwnership:"BucketOwnerPreferred"
@@ -45,9 +43,7 @@ if bucketName:
             metadata: _metadata("pab")
             spec = {
                 forProvider = {
-                    bucketRef = {
-                        name = bucketName
-                    }
+                    bucket = bucketExternalName
                     region = oxr.spec.parameters.region
                     blockPublicAcls: False
                     ignorePublicAcls: False
@@ -61,9 +57,7 @@ if bucketName:
             metadata: _metadata("acl")
             spec = {
                 forProvider = {
-                    bucketRef = {
-                        name = bucketName
-                    }
+                    bucket = bucketExternalName
                     region = oxr.spec.parameters.region
                     acl = oxr.spec.parameters.acl
                 }
@@ -71,13 +65,11 @@ if bucketName:
         },
         # Default encryption for the bucket
         s3v1beta1.BucketServerSideEncryptionConfiguration{
-            metadata: _metadata("encryption")
+            metadata: _metadata("sse")
             spec = {
                 forProvider = {
                     region = oxr.spec.parameters.region
-                    bucketRef = {
-                        name = bucketName
-                    }
+                    bucket = bucketExternalName
                     rule = [
                         {
                             applyServerSideEncryptionByDefault = [
@@ -101,9 +93,7 @@ if bucketName:
                 spec = {
                     forProvider = {
                         region = oxr.spec.parameters.region
-                        bucketRef = {
-                            name = bucketName
-                        }
+                        bucket = bucketExternalName
                         versioningConfiguration = [
                             {
                                 status = "Enabled"

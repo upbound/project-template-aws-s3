@@ -12,7 +12,7 @@ _expectedXR =  platformv1alpha1.XStorageBucket{
     }
 }
 
-_expectedBucket = s3v1beta1.Bucket{
+_expectedBucketBefore = s3v1beta1.Bucket{
     metadata.annotations: {
         "crossplane.io/composition-resource-name": "bucket"
     }
@@ -22,6 +22,17 @@ _expectedBucket = s3v1beta1.Bucket{
 }
 
 _observedBucket = s3v1beta1.Bucket{
+    metadata.name: "example-bucket"
+    metadata.annotations: {
+        "crossplane.io/composition-resource-name": "bucket"
+        "crossplane.io/external-name": "example-bucket"
+    }
+    spec.forProvider: {
+        region: "us-west-1"
+    }
+}
+
+_expectedBucketAfter = s3v1beta1.Bucket{
     metadata.name: "example-bucket"
     metadata.annotations: {
         "crossplane.io/composition-resource-name": "bucket"
@@ -37,9 +48,7 @@ _expectedACL = s3v1beta1.BucketACL{
     }
     spec.forProvider:{
         acl: "public-read"
-        bucketRef: {
-            name: "example-bucket"
-        }
+        bucket: "example-bucket"
         region: "us-west-1"
     }
 }
@@ -49,9 +58,7 @@ _expectedBOC = s3v1beta1.BucketOwnershipControls{
         "crossplane.io/composition-resource-name": "boc"
     }
     spec.forProvider: {
-        bucketRef: {
-            name: "example-bucket"
-        }
+        bucket: "example-bucket"
         region: "us-west-1"
         rule: [
             {
@@ -63,12 +70,10 @@ _expectedBOC = s3v1beta1.BucketOwnershipControls{
 
 _expectedEncryption = s3v1beta1.BucketServerSideEncryptionConfiguration{
     metadata.annotations: {
-        "crossplane.io/composition-resource-name": "encryption"
+        "crossplane.io/composition-resource-name": "sse"
     }
     spec.forProvider: {
-        bucketRef: {
-            name: "example-bucket"
-        }
+        bucket: "example-bucket"
         region: "us-west-1"
         rule: [
             {
@@ -90,9 +95,7 @@ _expectedPAB = s3v1beta1.BucketPublicAccessBlock{
     spec.forProvider: {
         blockPublicAcls: False
         blockPublicPolicy: False
-        bucketRef: {
-            name: "example-bucket"
-        }
+        bucket: "example-bucket"
         ignorePublicAcls: False
         region: "us-west-1"
         restrictPublicBuckets: False
@@ -104,9 +107,7 @@ _expectedVersioning = s3v1beta1.BucketVersioning{
         "crossplane.io/composition-resource-name": "versioning"
     }
     spec.forProvider: {
-        bucketRef: {
-            name: "example-bucket"
-        }
+        bucket: "example-bucket"
         region: "us-west-1"
         versioningConfiguration: [
             {
