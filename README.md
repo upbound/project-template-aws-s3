@@ -18,3 +18,4 @@ This example supports the following languages:
 - `kcl`
 - `go`
 - `python`
+- `go-templating`

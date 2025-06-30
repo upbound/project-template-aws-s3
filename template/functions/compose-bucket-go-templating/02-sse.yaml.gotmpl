@@ -1,0 +1,20 @@
+# code: language=yaml
+# yaml-language-server: $schema=../../.up/json/models/index.schema.json
+
+# Don't create the ServerSideEncryptionConfiguration until the bucket name is available.
+#{{ if $bucket_external_name }}
+---
+apiVersion: s3.aws.upbound.io/v1beta1
+kind: BucketServerSideEncryptionConfiguration
+metadata:
+  annotations:
+    {{ setResourceNameAnnotation "sse" }}
+spec:
+  forProvider:
+    region: "{{ $params.region }}"
+    bucket: "{{ $bucket_external_name }}"
+    rule:
+      - applyServerSideEncryptionByDefault:
+          - sseAlgorithm: AES256
+        bucketKeyEnabled: true
+#{{ end }}
