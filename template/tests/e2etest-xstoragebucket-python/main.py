@@ -39,7 +39,7 @@ test = e2etest.E2ETest(
     spec=e2etest.Spec(
         crossplane=e2etest.Crossplane(
             autoUpgrade=e2etest.AutoUpgrade(
-                channel=e2etest.Channel.Rapid,
+                channel="Rapid",
             ),
         ),
         defaultConditions=[
