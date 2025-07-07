@@ -26,7 +26,7 @@ _items = [
                     spec.credentials = {
                         source = "Upbound"
                         upbound.webIdentity = {
-                            roleARN = "arn:aws:iam::609897127049:role/example-project-aws-uptest"
+                            roleARN = "arn:aws:iam::609897127049:role/project-example-aws-uptest"
                         }
                     }
                 }
