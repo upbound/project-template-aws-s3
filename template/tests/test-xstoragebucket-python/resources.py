@@ -8,8 +8,8 @@ from .model.io.upbound.aws.s3.bucketversioning import v1beta1 as verv1beta1
 from .model.io.upbound.aws.s3.bucketserversideencryptionconfiguration import v1beta1 as ssev1beta1
 
 expected_xr = v1alpha1.XStorageBucket(
-    apiVersion=v1alpha1.ApiVersion.platform_example_com_v1alpha1,
-    kind=v1alpha1.Kind.XStorageBucket,
+    apiVersion="platform.example.com/v1alpha1",
+    kind="XStorageBucket",
     metadata=metav1.ObjectMeta(
         name="example",
     ),
@@ -23,8 +23,8 @@ expected_xr = v1alpha1.XStorageBucket(
 )
 
 expected_bucket_before = bucketv1beta1.Bucket(
-    apiVersion=bucketv1beta1.ApiVersion.s3_aws_upbound_io_v1beta1,
-    kind=bucketv1beta1.Kind.Bucket,
+    apiVersion="s3.aws.upbound.io/v1beta1",
+    kind="Bucket",
     metadata=metav1.ObjectMeta(
         annotations={
             "crossplane.io/composition-resource-name": "bucket",
@@ -38,8 +38,8 @@ expected_bucket_before = bucketv1beta1.Bucket(
 )
 
 observed_bucket = bucketv1beta1.Bucket(
-    apiVersion=bucketv1beta1.ApiVersion.s3_aws_upbound_io_v1beta1,
-    kind=bucketv1beta1.Kind.Bucket,
+    apiVersion="s3.aws.upbound.io/v1beta1",
+    kind="Bucket",
     metadata=metav1.ObjectMeta(
         name="example-bucket",
         annotations={
@@ -55,8 +55,8 @@ observed_bucket = bucketv1beta1.Bucket(
 )
 
 expected_bucket_after = bucketv1beta1.Bucket(
-    apiVersion=bucketv1beta1.ApiVersion.s3_aws_upbound_io_v1beta1,
-    kind=bucketv1beta1.Kind.Bucket,
+    apiVersion="s3.aws.upbound.io/v1beta1",
+    kind="Bucket",
     metadata=metav1.ObjectMeta(
         name="example-bucket",
         annotations={
@@ -71,8 +71,8 @@ expected_bucket_after = bucketv1beta1.Bucket(
 )
 
 expected_acl = aclv1beta1.BucketACL(
-    apiVersion=aclv1beta1.ApiVersion.s3_aws_upbound_io_v1beta1,
-    kind=aclv1beta1.Kind.BucketACL,
+    apiVersion="s3.aws.upbound.io/v1beta1",
+    kind="BucketACL",
     metadata=metav1.ObjectMeta(
         annotations={
             "crossplane.io/composition-resource-name": "acl",
@@ -88,8 +88,8 @@ expected_acl = aclv1beta1.BucketACL(
 )
 
 expected_boc = bocv1beta1.BucketOwnershipControls(
-    apiVersion=bocv1beta1.ApiVersion.s3_aws_upbound_io_v1beta1,
-    kind=bocv1beta1.Kind.BucketOwnershipControls,
+    apiVersion="s3.aws.upbound.io/v1beta1",
+    kind="BucketOwnershipControls",
     metadata=metav1.ObjectMeta(
         annotations={
             "crossplane.io/composition-resource-name": "boc",
@@ -109,8 +109,8 @@ expected_boc = bocv1beta1.BucketOwnershipControls(
 )
 
 expected_pab = pabv1beta1.BucketPublicAccessBlock(
-    apiVersion=pabv1beta1.ApiVersion.s3_aws_upbound_io_v1beta1,
-    kind=pabv1beta1.Kind.BucketPublicAccessBlock,
+    apiVersion="s3.aws.upbound.io/v1beta1",
+    kind="BucketPublicAccessBlock",
     metadata=metav1.ObjectMeta(
         annotations={
             "crossplane.io/composition-resource-name": "pab",
@@ -129,8 +129,8 @@ expected_pab = pabv1beta1.BucketPublicAccessBlock(
 )
 
 expected_sse = ssev1beta1.BucketServerSideEncryptionConfiguration(
-    apiVersion=ssev1beta1.ApiVersion.s3_aws_upbound_io_v1beta1,
-    kind=ssev1beta1.Kind.BucketServerSideEncryptionConfiguration,
+    apiVersion="s3.aws.upbound.io/v1beta1",
+    kind="BucketServerSideEncryptionConfiguration",
     metadata=metav1.ObjectMeta(
         annotations={
             "crossplane.io/composition-resource-name": "sse",
@@ -155,8 +155,8 @@ expected_sse = ssev1beta1.BucketServerSideEncryptionConfiguration(
 )
 
 expected_versioning = verv1beta1.BucketVersioning(
-    apiVersion=verv1beta1.ApiVersion.s3_aws_upbound_io_v1beta1,
-    kind=verv1beta1.Kind.BucketVersioning,
+    apiVersion="s3.aws.upbound.io/v1beta1",
+    kind="BucketVersioning",
     metadata=metav1.ObjectMeta(
         annotations={
             "crossplane.io/composition-resource-name": "versioning",
