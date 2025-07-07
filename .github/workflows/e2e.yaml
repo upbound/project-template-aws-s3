@@ -56,4 +56,4 @@ jobs:
 
       - name: Run e2e tests
         if: env.UP_API_TOKEN != '' && env.UP_ORG != ''
-        run: cd generated-project && up test run tests/* --e2e
+        run: cd generated-project && up test run tests/* --e2e --control-plane-name-prefix ${{ matrix.language }}-${{ matrix.test-language }}-
