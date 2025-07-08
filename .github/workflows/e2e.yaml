@@ -10,8 +10,11 @@ on:
       - labeled
   workflow_dispatch:
 
+permissions:
+  id-token: write   # Required for OIDC authentication
+  contents: read    # Required for checkout
+
 env:
-  UP_API_TOKEN: ${{ secrets.UP_API_TOKEN }}
   UP_ORG: ${{ secrets.UP_ORG }}
   AWS_REGION: us-east-1
 
@@ -21,10 +24,8 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        # language: [go, go-templating, kcl, python]
-        # test-language: [kcl, python]
-        language: [go]
-        test-language: [python]
+        language: [go, go-templating, kcl, python]
+        test-language: [kcl, python]
     steps:
       - name: Checkout
         id: checkout
@@ -52,6 +53,7 @@ jobs:
           api-token: ${{ secrets.UP_API_TOKEN }}
           organization: ${{ secrets.UP_ORG }}
           channel: main
+          version: v0.39.0-121.g5a95e138
 
       - name: Initialize project
         run: up project init -e ./template generated-project --language ${{ matrix.language }} --test-language ${{ matrix.test-language }}
@@ -59,10 +61,9 @@ jobs:
       - name: Build project
         run: cd generated-project && up project build
 
-      - name: Switch up context
-        if: env.UP_API_TOKEN != '' && env.UP_ORG != ''
-        run: up ctx ${{ secrets.UP_ORG }}/upbound-gcp-us-central-1/default
-
       - name: Run e2e tests
-        if: env.UP_API_TOKEN != '' && env.UP_ORG != ''
-        run: cd generated-project && UP_AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID UP_AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY UP_AWS_SESSION_TOKEN=$AWS_SESSION_TOKEN up test run tests/* --e2e --local
+        env:
+          UP_AWS_ACCESS_KEY_ID: ${{ env.AWS_ACCESS_KEY_ID }}
+          UP_AWS_SECRET_ACCESS_KEY: ${{ env.AWS_SECRET_ACCESS_KEY }}
+          UP_AWS_SESSION_TOKEN: ${{ env.AWS_SESSION_TOKEN }}
+        run: cd generated-project && up test run tests/* --e2e --local
