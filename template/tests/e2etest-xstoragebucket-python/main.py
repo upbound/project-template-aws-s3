@@ -73,6 +73,6 @@ test = e2etest.E2ETest(
         manifests=[bucket_manifest.model_dump()],
         extraResources=[provider_config.model_dump(), provider_creds.model_dump()],
         skipDelete=False,
-        timeoutSeconds=900, # 15 minutes
+        timeoutSeconds=300, # 5 minutes
     )
 )

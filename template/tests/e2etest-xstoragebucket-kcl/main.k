@@ -63,7 +63,7 @@ aws_session_token = ${aws_session_token}
                 }
             ]
             skipDelete = False
-            timeoutSeconds = 900 # 15 minutes
+            timeoutSeconds = 300 # 5 minutes
         }
     }
 ]
