@@ -66,4 +66,40 @@ jobs:
           UP_AWS_ACCESS_KEY_ID: ${{ env.AWS_ACCESS_KEY_ID }}
           UP_AWS_SECRET_ACCESS_KEY: ${{ env.AWS_SECRET_ACCESS_KEY }}
           UP_AWS_SESSION_TOKEN: ${{ env.AWS_SESSION_TOKEN }}
-        run: cd generated-project && up test run tests/* --e2e --local
+        run: cd generated-project && up test run tests/* --e2e --local --skip-control-plane-cleanup
+
+      - name: Install kind CLI
+        if: failure()
+        run: |
+          curl -Lo ./kind https://kind.sigs.k8s.io/dl/v0.20.0/kind-linux-amd64
+          chmod +x ./kind
+          sudo mv ./kind /usr/local/bin/kind
+
+      - name: Install supportbundle CLI
+        if: failure()
+        run: |
+          curl -Lo ./support-bundle https://github.com/replicatedhq/troubleshoot/releases/latest/download/support-bundle_linux_amd64.tar.gz
+          tar -xzf ./support-bundle
+          chmod +x ./support-bundle
+          sudo mv ./support-bundle /usr/local/bin/support-bundle
+
+      - name: Collect diagnostic information
+        if: failure()
+        run: |
+          kind get clusters
+          FIRST_CLUSTER=$(kind get clusters | head -n 1)
+          if [ -n "$FIRST_CLUSTER" ]; then
+            kind export kubeconfig --name "$FIRST_CLUSTER"
+            support-bundle --kubeconfig ~/.kube/config --output support-bundle.tar.gz ./template/.github/supportbundle.yaml
+          else
+            echo "No kind clusters found"
+            touch support-bundle.tar.gz
+          fi
+
+      - name: Upload support bundle
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: support-bundle-${{ matrix.language }}-${{ matrix.test-language }}
+          path: support-bundle.tar.gz
+          retention-days: 1
