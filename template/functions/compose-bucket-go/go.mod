@@ -1,4 +1,4 @@
-module github.com/upbound/example-project-aws/functions/compose-bucket-go
+module github.com/upbound/project-template-aws-s3/functions/compose-bucket-go
 
 go 1.23.1
 

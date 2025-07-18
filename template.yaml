@@ -1,4 +1,4 @@
-name: template-project-aws
+name: project-template-aws-s3
 description: "A template for creating a new AWS project"
 version: 0.1.0
 

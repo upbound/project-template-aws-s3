@@ -9,7 +9,7 @@ spec:
   mode: Pipeline
   pipeline:
   - functionRef:
-      name: upbound-example-project-awscompose-bucket
+      name: upbound-project-template-aws-s3compose-bucket
     step: compose-bucket
   - functionRef:
       name: crossplane-contrib-function-auto-ready
