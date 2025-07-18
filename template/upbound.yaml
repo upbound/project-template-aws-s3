@@ -1,7 +1,7 @@
 apiVersion: meta.dev.upbound.io/v1alpha1
 kind: Project
 metadata:
-  name: example-project-aws
+  name: project-template-aws-s3
 spec:
   dependsOn:
   - apiVersion: pkg.crossplane.io/v1
@@ -17,5 +17,5 @@ spec:
   maintainer: Upbound User <user@example.com>
   readme: |
     This is where you can add a readme for your project.
-  repository: xpkg.upbound.io/upbound/example-project-aws
-  source: github.com/upbound/example-project-aws
+  repository: xpkg.upbound.io/upbound/project-template-aws-s3
+  source: github.com/upbound/project-template-aws-s3
