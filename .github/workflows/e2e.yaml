@@ -31,7 +31,8 @@ jobs:
         id: checkout
         uses: actions/checkout@v4
         with:
-          path: ./template
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 0
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
@@ -52,11 +53,9 @@ jobs:
         with:
           api-token: ${{ secrets.UP_API_TOKEN }}
           organization: ${{ secrets.UP_ORG }}
-          channel: main
-          version: v0.39.0-121.g5a95e138
 
       - name: Initialize project
-        run: up project init -e ./template generated-project --language ${{ matrix.language }} --test-language ${{ matrix.test-language }}
+        run: up project init -t . generated-project --language ${{ matrix.language }} --test-language ${{ matrix.test-language }}
 
       - name: Build project
         run: cd generated-project && up project build
