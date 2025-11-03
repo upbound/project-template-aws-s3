@@ -1,0 +1,57 @@
+# code: language=yaml
+# yaml-language-server: $schema=../../.up/json/models/test.schema.json
+
+{{ $aws_access_key_id := env "UP_AWS_ACCESS_KEY_ID" }}
+{{ $aws_secret_access_key := env "UP_AWS_SECRET_ACCESS_KEY" }}
+{{ $aws_session_token := env "UP_AWS_SESSION_TOKEN" }}
+{{ $aws_creds := (printf `[default]
+aws_access_key_id = %s
+aws_secret_access_key = %s
+aws_session_token = %s
+` $aws_access_key_id $aws_secret_access_key $aws_session_token) | b64enc }}
+
+items:
+- apiVersion: meta.dev.upbound.io/v1alpha1
+  kind: E2ETest
+  metadata:
+    name: e2etest-xstoragebucket
+  spec:
+    cleanupTimeoutSeconds: 600
+    crossplane:
+      autoUpgrade:
+        channel: Rapid
+      state: Running
+    defaultConditions:
+      - Ready
+    extraResources:
+      - apiVersion: aws.upbound.io/v1beta1
+        kind: ProviderConfig
+        metadata:
+          name: default
+        spec:
+          credentials:
+            secretRef:
+              key: credentials
+              name: aws-credentials
+              namespace: crossplane-system
+            source: Secret
+      - apiVersion: v1
+        kind: Secret
+        metadata:
+          name: aws-credentials
+          namespace: crossplane-system
+        type: Opaque
+        data:
+          credentials: {{ print $aws_creds }}
+    manifests:
+      - apiVersion: platform.example.com/v1alpha1
+        kind: XStorageBucket
+        metadata:
+          name: uptest-bucket-xr-kcl
+        spec:
+          parameters:
+            acl: private
+            region: eu-central-1
+            versioning: true
+    skipDelete: false
+    timeoutSeconds: 300
