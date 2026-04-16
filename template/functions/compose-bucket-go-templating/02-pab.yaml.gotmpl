@@ -3,6 +3,7 @@
 
 # Don't create the PublicAccessBlock until the bucket name is available.
 #{{ if $bucket_external_name }}
+#{{ $isPublicRead := eq (default "private" $params.acl) "public-read" }}
 ---
 apiVersion: s3.aws.upbound.io/v1beta1
 kind: BucketPublicAccessBlock
@@ -13,8 +14,8 @@ spec:
   forProvider:
     region: "{{ $params.region }}"
     bucket: "{{ $bucket_external_name }}"
-    blockPublicAcls: false
-    ignorePublicAcls: false
-    restrictPublicBuckets: false
-    blockPublicPolicy: false
+    blockPublicAcls: true
+    ignorePublicAcls: true
+    blockPublicPolicy: {{ not $isPublicRead }}
+    restrictPublicBuckets: {{ not $isPublicRead }}
 #{{ end }}

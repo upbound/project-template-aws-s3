@@ -1,3 +1,4 @@
+import json
 import models.io.upbound.aws.s3.v1beta1 as s3v1beta1
 import models.com.example.platform.v1alpha1.xstoragebucket as xstoragebucketv1alpha1
 
@@ -25,41 +26,24 @@ _items: [any] = [
 
 ocds = option("params").ocds
 bucketExternalName = ocds["bucket"]?.Resource?.metadata?.annotations?["crossplane.io/external-name"]
+isPublicRead = oxr.spec.parameters.acl == "public-read"
+
 if bucketExternalName:
     _items += [
-        s3v1beta1.BucketOwnershipControls{
-            metadata: _metadata("boc")
-            spec = {
-                forProvider = {
-                    bucket = bucketExternalName
-                    region = oxr.spec.parameters.region
-                    rule:[{
-                        objectOwnership:"BucketOwnerPreferred"
-                    }]
-                }
-            }
-        },
+        # Block public ACLs unconditionally (BucketOwnerEnforced is the AWS
+        # default since April 2023). When acl=public-read, we still allow
+        # public access via bucket policy by loosening the policy-related
+        # blocks.
         s3v1beta1.BucketPublicAccessBlock{
             metadata: _metadata("pab")
             spec = {
                 forProvider = {
                     bucket = bucketExternalName
                     region = oxr.spec.parameters.region
-                    blockPublicAcls: False
-                    ignorePublicAcls: False
-                    restrictPublicBuckets: False
-                    blockPublicPolicy: False
-                }
-            }
-        },
-        # ACL for the bucket
-        s3v1beta1.BucketACL{
-            metadata: _metadata("acl")
-            spec = {
-                forProvider = {
-                    bucket = bucketExternalName
-                    region = oxr.spec.parameters.region
-                    acl = oxr.spec.parameters.acl
+                    blockPublicAcls: True
+                    ignorePublicAcls: True
+                    blockPublicPolicy: not isPublicRead
+                    restrictPublicBuckets: not isPublicRead
                 }
             }
         },
@@ -84,6 +68,31 @@ if bucketExternalName:
             }
         }
     ]
+
+    # Grant anonymous read access via bucket policy (the modern replacement
+    # for the legacy public-read ACL).
+    if isPublicRead:
+        _items += [
+            s3v1beta1.BucketPolicy{
+                metadata: _metadata("policy")
+                spec = {
+                    forProvider = {
+                        region = oxr.spec.parameters.region
+                        bucket = bucketExternalName
+                        policy = json.encode({
+                            Version = "2012-10-17"
+                            Statement = [{
+                                Sid = "PublicRead"
+                                Effect = "Allow"
+                                Principal = "*"
+                                Action = ["s3:GetObject"]
+                                Resource = ["arn:aws:s3:::{}/*".format(bucketExternalName)]
+                            }]
+                        })
+                    }
+                }
+            }
+        ]
 
     # Set up versioning for the bucket if desired
     if oxr.spec.parameters.versioning:

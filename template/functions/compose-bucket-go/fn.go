@@ -96,44 +96,20 @@ func (f *Function) RunFunction(_ context.Context, req *fnv1.RunFunctionRequest) 
 		return rsp, nil
 	}
 
-	// The desired ACL, encryption, and versioning resources all need to refer
-	// to the bucket by its external name, which is stored in its external name
-	// annotation. Return early if the Bucket's external-name annotation isn't
-	// set yet.
+	// The desired encryption, public access block, and versioning resources all
+	// need to refer to the bucket by its external name, which is stored in its
+	// external name annotation. Return early if the Bucket's external-name
+	// annotation isn't set yet.
 	bucketExternalName := observedBucket.Resource.GetAnnotations()["crossplane.io/external-name"]
 	if bucketExternalName == "" {
 		response.Normal(rsp, "waiting for bucket to be created").TargetCompositeAndClaim()
 		return rsp, nil
 	}
 
-	acl := &v1beta1.BucketACL{
-		APIVersion: ptr.To(v1beta1.BucketACLApiVersions3AwsUpboundIoV1Beta1),
-		Kind:       ptr.To(v1beta1.BucketACLKindBucketACL),
-		Spec: &v1beta1.BucketACLSpec{
-			ForProvider: &v1beta1.BucketACLSpecForProvider{
-				Bucket: &bucketExternalName,
-				Region: params.Region,
-				ACL:    params.ACL,
-			},
-		},
-	}
-	desiredComposed["acl"] = acl
-
-	boc := &v1beta1.BucketOwnershipControls{
-		APIVersion: ptr.To(v1beta1.BucketOwnershipControlsAPIVersions3AwsUpboundIoV1Beta1),
-		Kind:       ptr.To(v1beta1.BucketOwnershipControlsKindBucketOwnershipControls),
-		Spec: &v1beta1.BucketOwnershipControlsSpec{
-			ForProvider: &v1beta1.BucketOwnershipControlsSpecForProvider{
-				Bucket: &bucketExternalName,
-				Region: params.Region,
-				Rule: &[]v1beta1.BucketOwnershipControlsSpecForProviderRuleItem{{
-					ObjectOwnership: ptr.To("BucketOwnerPreferred"),
-				}},
-			},
-		},
-	}
-	desiredComposed["boc"] = boc
-
+	// When acl=public-read we still block public ACLs (modern buckets use
+	// BucketOwnerEnforced) but loosen the policy-related blocks so our
+	// BucketPolicy can grant anonymous read.
+	isPublicRead := params.ACL != nil && *params.ACL == v1alpha1.XStorageBucketSpecParametersACLpublicRead
 	pab := &v1beta1.BucketPublicAccessBlock{
 		APIVersion: ptr.To(v1beta1.BucketPublicAccessBlockAPIVersions3AwsUpboundIoV1Beta1),
 		Kind:       ptr.To(v1beta1.BucketPublicAccessBlockKindBucketPublicAccessBlock),
@@ -141,14 +117,44 @@ func (f *Function) RunFunction(_ context.Context, req *fnv1.RunFunctionRequest) 
 			ForProvider: &v1beta1.BucketPublicAccessBlockSpecForProvider{
 				Bucket:                &bucketExternalName,
 				Region:                params.Region,
-				BlockPublicAcls:       ptr.To(false),
-				RestrictPublicBuckets: ptr.To(false),
-				IgnorePublicAcls:      ptr.To(false),
-				BlockPublicPolicy:     ptr.To(false),
+				BlockPublicAcls:       ptr.To(true),
+				IgnorePublicAcls:      ptr.To(true),
+				BlockPublicPolicy:     ptr.To(!isPublicRead),
+				RestrictPublicBuckets: ptr.To(!isPublicRead),
 			},
 		},
 	}
 	desiredComposed["pab"] = pab
+
+	if isPublicRead {
+		policyDoc := map[string]any{
+			"Version": "2012-10-17",
+			"Statement": []map[string]any{{
+				"Sid":       "PublicRead",
+				"Effect":    "Allow",
+				"Principal": "*",
+				"Action":    []string{"s3:GetObject"},
+				"Resource":  []string{"arn:aws:s3:::" + bucketExternalName + "/*"},
+			}},
+		}
+		policyBytes, err := json.Marshal(policyDoc)
+		if err != nil {
+			response.Fatal(rsp, errors.Wrap(err, "cannot marshal bucket policy"))
+			return rsp, nil
+		}
+		policy := string(policyBytes)
+		desiredComposed["policy"] = &v1beta1.BucketPolicy{
+			APIVersion: ptr.To(v1beta1.BucketPolicyAPIVersions3AwsUpboundIoV1Beta1),
+			Kind:       ptr.To(v1beta1.BucketPolicyKindBucketPolicy),
+			Spec: &v1beta1.BucketPolicySpec{
+				ForProvider: &v1beta1.BucketPolicySpecForProvider{
+					Bucket: &bucketExternalName,
+					Region: params.Region,
+					Policy: &policy,
+				},
+			},
+		}
+	}
 
 	sse := &v1beta1.BucketServerSideEncryptionConfiguration{
 		APIVersion: ptr.To(v1beta1.BucketServerSideEncryptionConfigurationAPIVersions3AwsUpboundIoV1Beta1),

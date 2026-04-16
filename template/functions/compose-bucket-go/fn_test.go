@@ -44,7 +44,6 @@ func TestRunFunction(t *testing.T) {
 							Spec: &v1alpha1.XStorageBucketSpec{
 								Parameters: &v1alpha1.XStorageBucketSpecParameters{
 									Region:     ptr.To("us-east-1"),
-									ACL:        ptr.To("private"),
 									Versioning: ptr.To(false),
 								},
 							},
@@ -86,7 +85,6 @@ func TestRunFunction(t *testing.T) {
 							Spec: &v1alpha1.XStorageBucketSpec{
 								Parameters: &v1alpha1.XStorageBucketSpecParameters{
 									Region:     ptr.To("us-east-1"),
-									ACL:        ptr.To("private"),
 									Versioning: ptr.To(false),
 								},
 							},
@@ -125,30 +123,6 @@ func TestRunFunction(t *testing.T) {
 									},
 								},
 							}),
-							"acl": toResource(&v1beta1.BucketACL{
-								APIVersion: ptr.To(v1beta1.BucketACLApiVersions3AwsUpboundIoV1Beta1),
-								Kind:       ptr.To(v1beta1.BucketACLKindBucketACL),
-								Spec: &v1beta1.BucketACLSpec{
-									ForProvider: &v1beta1.BucketACLSpecForProvider{
-										Bucket: ptr.To("my-bukkit"),
-										Region: ptr.To("us-east-1"),
-										ACL:    ptr.To("private"),
-									},
-								},
-							}),
-							"boc": toResource(&v1beta1.BucketOwnershipControls{
-								APIVersion: ptr.To(v1beta1.BucketOwnershipControlsAPIVersions3AwsUpboundIoV1Beta1),
-								Kind:       ptr.To(v1beta1.BucketOwnershipControlsKindBucketOwnershipControls),
-								Spec: &v1beta1.BucketOwnershipControlsSpec{
-									ForProvider: &v1beta1.BucketOwnershipControlsSpecForProvider{
-										Bucket: ptr.To("my-bukkit"),
-										Region: ptr.To("us-east-1"),
-										Rule: &[]v1beta1.BucketOwnershipControlsSpecForProviderRuleItem{{
-											ObjectOwnership: ptr.To("BucketOwnerPreferred"),
-										}},
-									},
-								},
-							}),
 							"pab": toResource(&v1beta1.BucketPublicAccessBlock{
 								APIVersion: ptr.To(v1beta1.BucketPublicAccessBlockAPIVersions3AwsUpboundIoV1Beta1),
 								Kind:       ptr.To(v1beta1.BucketPublicAccessBlockKindBucketPublicAccessBlock),
@@ -156,10 +130,10 @@ func TestRunFunction(t *testing.T) {
 									ForProvider: &v1beta1.BucketPublicAccessBlockSpecForProvider{
 										Bucket:                ptr.To("my-bukkit"),
 										Region:                ptr.To("us-east-1"),
-										BlockPublicAcls:       ptr.To(false),
-										RestrictPublicBuckets: ptr.To(false),
-										IgnorePublicAcls:      ptr.To(false),
-										BlockPublicPolicy:     ptr.To(false),
+										BlockPublicAcls:       ptr.To(true),
+										RestrictPublicBuckets: ptr.To(true),
+										IgnorePublicAcls:      ptr.To(true),
+										BlockPublicPolicy:     ptr.To(true),
 									},
 								},
 							}),
@@ -184,6 +158,101 @@ func TestRunFunction(t *testing.T) {
 				},
 			},
 		},
+		"BucketCreatedPublicRead": {
+			reason: "If acl is public-read, a BucketPolicy is desired and the PAB is loosened for policy-based public access.",
+			args: args{
+				req: &fnv1.RunFunctionRequest{
+					Meta: &fnv1.RequestMeta{Tag: "hello"},
+					Observed: &fnv1.State{
+						Composite: toResource(&v1alpha1.XStorageBucket{
+							Spec: &v1alpha1.XStorageBucketSpec{
+								Parameters: &v1alpha1.XStorageBucketSpecParameters{
+									ACL:        ptr.To(v1alpha1.XStorageBucketSpecParametersACLpublicRead),
+									Region:     ptr.To("us-east-1"),
+									Versioning: ptr.To(false),
+								},
+							},
+						}),
+						Resources: map[string]*fnv1.Resource{
+							"bucket": toResource(&v1beta1.Bucket{
+								APIVersion: ptr.To(v1beta1.BucketAPIVersions3AwsUpboundIoV1Beta1),
+								Kind:       ptr.To(v1beta1.BucketKindBucket),
+								Metadata: &v1.ObjectMeta{
+									Annotations: &map[string]string{
+										"crossplane.io/external-name": "my-bukkit",
+									},
+								},
+								Spec: &v1beta1.BucketSpec{
+									ForProvider: &v1beta1.BucketSpecForProvider{
+										Region: ptr.To("us-east-1"),
+									},
+								},
+							}),
+						},
+					},
+				},
+			},
+			want: want{
+				rsp: &fnv1.RunFunctionResponse{
+					Meta:    &fnv1.ResponseMeta{Tag: "hello", Ttl: durationpb.New(response.DefaultTTL)},
+					Results: []*fnv1.Result{},
+					Desired: &fnv1.State{
+						Resources: map[string]*fnv1.Resource{
+							"bucket": toResource(&v1beta1.Bucket{
+								APIVersion: ptr.To(v1beta1.BucketAPIVersions3AwsUpboundIoV1Beta1),
+								Kind:       ptr.To(v1beta1.BucketKindBucket),
+								Spec: &v1beta1.BucketSpec{
+									ForProvider: &v1beta1.BucketSpecForProvider{
+										Region: ptr.To("us-east-1"),
+									},
+								},
+							}),
+							"pab": toResource(&v1beta1.BucketPublicAccessBlock{
+								APIVersion: ptr.To(v1beta1.BucketPublicAccessBlockAPIVersions3AwsUpboundIoV1Beta1),
+								Kind:       ptr.To(v1beta1.BucketPublicAccessBlockKindBucketPublicAccessBlock),
+								Spec: &v1beta1.BucketPublicAccessBlockSpec{
+									ForProvider: &v1beta1.BucketPublicAccessBlockSpecForProvider{
+										Bucket:                ptr.To("my-bukkit"),
+										Region:                ptr.To("us-east-1"),
+										BlockPublicAcls:       ptr.To(true),
+										IgnorePublicAcls:      ptr.To(true),
+										BlockPublicPolicy:     ptr.To(false),
+										RestrictPublicBuckets: ptr.To(false),
+									},
+								},
+							}),
+							"sse": toResource(&v1beta1.BucketServerSideEncryptionConfiguration{
+								APIVersion: ptr.To(v1beta1.BucketServerSideEncryptionConfigurationAPIVersions3AwsUpboundIoV1Beta1),
+								Kind:       ptr.To(v1beta1.BucketServerSideEncryptionConfigurationKindBucketServerSideEncryptionConfiguration),
+								Spec: &v1beta1.BucketServerSideEncryptionConfigurationSpec{
+									ForProvider: &v1beta1.BucketServerSideEncryptionConfigurationSpecForProvider{
+										Bucket: ptr.To("my-bukkit"),
+										Region: ptr.To("us-east-1"),
+										Rule: &[]v1beta1.BucketServerSideEncryptionConfigurationSpecForProviderRuleItem{{
+											ApplyServerSideEncryptionByDefault: &[]v1beta1.BucketServerSideEncryptionConfigurationSpecForProviderRuleItemApplyServerSideEncryptionByDefaultItem{{
+												SseAlgorithm: ptr.To("AES256"),
+											}},
+											BucketKeyEnabled: ptr.To(true),
+										}},
+									},
+								},
+							}),
+							"policy": toResource(&v1beta1.BucketPolicy{
+								APIVersion: ptr.To(v1beta1.BucketPolicyAPIVersions3AwsUpboundIoV1Beta1),
+								Kind:       ptr.To(v1beta1.BucketPolicyKindBucketPolicy),
+								Spec: &v1beta1.BucketPolicySpec{
+									ForProvider: &v1beta1.BucketPolicySpecForProvider{
+										Bucket: ptr.To("my-bukkit"),
+										Region: ptr.To("us-east-1"),
+										Policy: ptr.To(`{"Statement":[{"Action":["s3:GetObject"],"Effect":"Allow","Principal":"*","Resource":["arn:aws:s3:::my-bukkit/*"],"Sid":"PublicRead"}],"Version":"2012-10-17"}`),
+									},
+								},
+							}),
+						},
+					},
+				},
+			},
+		},
 		"BucketCreatedWithVersioning": {
 			reason: "If the bucket has been created with versioning, all resources should be desired.",
 			args: args{
@@ -194,7 +263,6 @@ func TestRunFunction(t *testing.T) {
 							Spec: &v1alpha1.XStorageBucketSpec{
 								Parameters: &v1alpha1.XStorageBucketSpecParameters{
 									Region:     ptr.To("us-east-1"),
-									ACL:        ptr.To("private"),
 									Versioning: ptr.To(true),
 								},
 							},
@@ -233,30 +301,6 @@ func TestRunFunction(t *testing.T) {
 									},
 								},
 							}),
-							"acl": toResource(&v1beta1.BucketACL{
-								APIVersion: ptr.To(v1beta1.BucketACLApiVersions3AwsUpboundIoV1Beta1),
-								Kind:       ptr.To(v1beta1.BucketACLKindBucketACL),
-								Spec: &v1beta1.BucketACLSpec{
-									ForProvider: &v1beta1.BucketACLSpecForProvider{
-										Bucket: ptr.To("my-bukkit"),
-										Region: ptr.To("us-east-1"),
-										ACL:    ptr.To("private"),
-									},
-								},
-							}),
-							"boc": toResource(&v1beta1.BucketOwnershipControls{
-								APIVersion: ptr.To(v1beta1.BucketOwnershipControlsAPIVersions3AwsUpboundIoV1Beta1),
-								Kind:       ptr.To(v1beta1.BucketOwnershipControlsKindBucketOwnershipControls),
-								Spec: &v1beta1.BucketOwnershipControlsSpec{
-									ForProvider: &v1beta1.BucketOwnershipControlsSpecForProvider{
-										Bucket: ptr.To("my-bukkit"),
-										Region: ptr.To("us-east-1"),
-										Rule: &[]v1beta1.BucketOwnershipControlsSpecForProviderRuleItem{{
-											ObjectOwnership: ptr.To("BucketOwnerPreferred"),
-										}},
-									},
-								},
-							}),
 							"pab": toResource(&v1beta1.BucketPublicAccessBlock{
 								APIVersion: ptr.To(v1beta1.BucketPublicAccessBlockAPIVersions3AwsUpboundIoV1Beta1),
 								Kind:       ptr.To(v1beta1.BucketPublicAccessBlockKindBucketPublicAccessBlock),
@@ -264,10 +308,10 @@ func TestRunFunction(t *testing.T) {
 									ForProvider: &v1beta1.BucketPublicAccessBlockSpecForProvider{
 										Bucket:                ptr.To("my-bukkit"),
 										Region:                ptr.To("us-east-1"),
-										BlockPublicAcls:       ptr.To(false),
-										RestrictPublicBuckets: ptr.To(false),
-										IgnorePublicAcls:      ptr.To(false),
-										BlockPublicPolicy:     ptr.To(false),
+										BlockPublicAcls:       ptr.To(true),
+										RestrictPublicBuckets: ptr.To(true),
+										IgnorePublicAcls:      ptr.To(true),
+										BlockPublicPolicy:     ptr.To(true),
 									},
 								},
 							}),

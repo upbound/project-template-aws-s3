@@ -58,8 +58,6 @@ _test2 = metav1alpha1.CompositionTest {
     spec.assertResources = [
         resources._expectedXR
         _stripDefaults(resources._expectedBucketAfter)
-        _stripDefaults(resources._expectedACL)
-        _stripDefaults(resources._expectedBOC)
         _stripDefaults(resources._expectedPAB)
         _stripDefaults(resources._expectedEncryption)
         _stripDefaults(resources._expectedVersioning)
