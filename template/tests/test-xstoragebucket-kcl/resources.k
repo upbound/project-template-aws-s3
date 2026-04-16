@@ -5,7 +5,7 @@ _expectedXR =  platformv1alpha1.XStorageBucket{
     metadata.name: "example"
     spec: {
         parameters: {
-            acl: "public-read"
+            acl: "private"
             region: "us-west-1"
             versioning: True
         }
@@ -42,32 +42,6 @@ _expectedBucketAfter = s3v1beta1.Bucket{
     }
 }
 
-_expectedACL = s3v1beta1.BucketACL{
-    metadata.annotations: {
-        "crossplane.io/composition-resource-name": "acl"
-    }
-    spec.forProvider:{
-        acl: "public-read"
-        bucket: "example-bucket"
-        region: "us-west-1"
-    }
-}
-
-_expectedBOC = s3v1beta1.BucketOwnershipControls{
-    metadata.annotations: {
-        "crossplane.io/composition-resource-name": "boc"
-    }
-    spec.forProvider: {
-        bucket: "example-bucket"
-        region: "us-west-1"
-        rule: [
-            {
-                objectOwnership: "BucketOwnerPreferred"
-            }
-        ]
-    }
-}
-
 _expectedEncryption = s3v1beta1.BucketServerSideEncryptionConfiguration{
     metadata.annotations: {
         "crossplane.io/composition-resource-name": "sse"
@@ -93,12 +67,12 @@ _expectedPAB = s3v1beta1.BucketPublicAccessBlock{
         "crossplane.io/composition-resource-name": "pab"
     }
     spec.forProvider: {
-        blockPublicAcls: False
-        blockPublicPolicy: False
+        blockPublicAcls: True
+        blockPublicPolicy: True
         bucket: "example-bucket"
-        ignorePublicAcls: False
+        ignorePublicAcls: True
         region: "us-west-1"
-        restrictPublicBuckets: False
+        restrictPublicBuckets: True
     }
 }
 

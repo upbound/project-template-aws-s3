@@ -41,8 +41,6 @@ items:
     assertResources:
       {{- print $expectedXR | indent 6 }}
       {{- print $expectedBucketAfter | indent 6 }}
-      {{- print $expectedACL | nindent 6 }}
-      {{- print $expectedBOC | nindent 6 }}
       {{- print $expectedPAB | nindent 6}}
       {{- print $expectedSSE | nindent 6}}
       {{- print $expectedVersioning | nindent 6}}

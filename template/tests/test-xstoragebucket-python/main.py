@@ -52,8 +52,6 @@ test2 = buildTest(
     expected=[
         resources.expected_xr,
         resources.expected_bucket_after,
-        resources.expected_acl,
-        resources.expected_boc,
         resources.expected_pab,
         resources.expected_sse,
         resources.expected_versioning,

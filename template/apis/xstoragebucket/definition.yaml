@@ -26,6 +26,10 @@ spec:
                 properties:
                   acl:
                     type: string
+                    enum:
+                    - private
+                    - public-read
+                    default: private
                   region:
                     type: string
                     default: "us-west-1"
@@ -33,7 +37,6 @@ spec:
                     type: boolean
                 type: object
                 required:
-                - acl
                 - region
                 - versioning
             type: object

@@ -4,6 +4,6 @@ metadata:
   name: example
 spec:
   parameters:
+    acl: private
     region: us-west-1
     versioning: true
-    acl: public-read

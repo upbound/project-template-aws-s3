@@ -1,11 +1,12 @@
+import json
+
 from crossplane.function import resource
 from crossplane.function.proto.v1 import run_function_pb2 as fnv1
 
 from .model.io.k8s.apimachinery.pkg.apis.meta import v1 as metav1
 from .model.com.example.platform.xstoragebucket import v1alpha1
 from .model.io.upbound.aws.s3.bucket import v1beta1 as bucketv1beta1
-from .model.io.upbound.aws.s3.bucketacl import v1beta1 as aclv1beta1
-from .model.io.upbound.aws.s3.bucketownershipcontrols import v1beta1 as bocv1beta1
+from .model.io.upbound.aws.s3.bucketpolicy import v1beta1 as policyv1beta1
 from .model.io.upbound.aws.s3.bucketpublicaccessblock import v1beta1 as pabv1beta1
 from .model.io.upbound.aws.s3.bucketversioning import v1beta1 as verv1beta1
 from .model.io.upbound.aws.s3.bucketserversideencryptionconfiguration import (
@@ -33,10 +34,10 @@ def compose(req: fnv1.RunFunctionRequest, rsp: fnv1.RunFunctionResponse):
 
     observed_bucket = bucketv1beta1.Bucket(**resource.struct_to_dict(req.observed.resources["bucket"].resource))
 
-    # The desired ACL, encryption, and versioning resources all need to refer to
-    # the bucket by its external name, which is stored in its external name
-    # annotation. Return early if the Bucket's external-name annotation isn't
-    # set yet.
+    # The desired encryption, public access block, and versioning resources all
+    # need to refer to the bucket by its external name, which is stored in its
+    # external name annotation. Return early if the Bucket's external-name
+    # annotation isn't set yet.
     if observed_bucket.metadata is None or observed_bucket.metadata.annotations is None:
         return
     if "crossplane.io/external-name" not in observed_bucket.metadata.annotations:
@@ -46,45 +47,45 @@ def compose(req: fnv1.RunFunctionRequest, rsp: fnv1.RunFunctionResponse):
         "crossplane.io/external-name"
     ]
 
-    desired_acl = aclv1beta1.BucketACL(
-        spec=aclv1beta1.Spec(
-            forProvider=aclv1beta1.ForProvider(
-                region=params.region,
-                bucket=bucket_external_name,
-                acl=params.acl,
-            ),
-        ),
-    )
-    resource.update(rsp.desired.resources["acl"], desired_acl)
-
-    desired_boc = bocv1beta1.BucketOwnershipControls(
-        spec=bocv1beta1.Spec(
-            forProvider=bocv1beta1.ForProvider(
-                region=params.region,
-                bucket=bucket_external_name,
-                rule=[
-                    bocv1beta1.RuleItem(
-                        objectOwnership="BucketOwnerPreferred",
-                    ),
-                ],
-            )
-        ),
-    )
-    resource.update(rsp.desired.resources["boc"], desired_boc)
-
+    # When acl=public-read we still block public ACLs (modern buckets use
+    # BucketOwnerEnforced) but loosen the policy-related blocks so our
+    # BucketPolicy can grant anonymous read.
+    is_public_read = params.acl == "public-read"
     desired_pab = pabv1beta1.BucketPublicAccessBlock(
         spec=pabv1beta1.Spec(
             forProvider=pabv1beta1.ForProvider(
                 region=params.region,
                 bucket=bucket_external_name,
-                blockPublicAcls=False,
-                ignorePublicAcls=False,
-                restrictPublicBuckets=False,
-                blockPublicPolicy=False,
+                blockPublicAcls=True,
+                ignorePublicAcls=True,
+                blockPublicPolicy=not is_public_read,
+                restrictPublicBuckets=not is_public_read,
             )
         ),
     )
     resource.update(rsp.desired.resources["pab"], desired_pab)
+
+    if is_public_read:
+        policy_doc = {
+            "Version": "2012-10-17",
+            "Statement": [{
+                "Sid": "PublicRead",
+                "Effect": "Allow",
+                "Principal": "*",
+                "Action": ["s3:GetObject"],
+                "Resource": [f"arn:aws:s3:::{bucket_external_name}/*"],
+            }],
+        }
+        desired_policy = policyv1beta1.BucketPolicy(
+            spec=policyv1beta1.Spec(
+                forProvider=policyv1beta1.ForProvider(
+                    region=params.region,
+                    bucket=bucket_external_name,
+                    policy=json.dumps(policy_doc),
+                ),
+            ),
+        )
+        resource.update(rsp.desired.resources["policy"], desired_policy)
 
     desired_sse = ssev1beta1.BucketServerSideEncryptionConfiguration(
         spec=ssev1beta1.Spec(

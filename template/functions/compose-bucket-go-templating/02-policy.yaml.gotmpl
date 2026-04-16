@@ -1,0 +1,19 @@
+# code: language=yaml
+# yaml-language-server: $schema=../../.up/json/models/index.schema.json
+
+# Only create a BucketPolicy when acl=public-read, and only after the bucket
+# name is available.
+#{{ if and $bucket_external_name (eq (default "private" $params.acl) "public-read") }}
+#{{ $policy := dict "Version" "2012-10-17" "Statement" (list (dict "Sid" "PublicRead" "Effect" "Allow" "Principal" "*" "Action" (list "s3:GetObject") "Resource" (list (printf "arn:aws:s3:::%s/*" $bucket_external_name)))) }}
+---
+apiVersion: s3.aws.upbound.io/v1beta1
+kind: BucketPolicy
+metadata:
+  annotations:
+    {{ setResourceNameAnnotation "policy" }}
+spec:
+  forProvider:
+    region: "{{ $params.region }}"
+    bucket: "{{ $bucket_external_name }}"
+    policy: {{ $policy | toJson | quote }}
+#{{ end }}
