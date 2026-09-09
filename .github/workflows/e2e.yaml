@@ -25,7 +25,7 @@ jobs:
     strategy:
       matrix:
         language: [go, go-templating, kcl, python]
-        test-language: [go-templating, kcl, python]
+        test-language: [go, go-templating, kcl, python]
     steps:
       - name: Checkout
         id: checkout
