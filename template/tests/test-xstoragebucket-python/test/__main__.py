@@ -15,27 +15,29 @@
 # of the dependent resources.
 
 import pydantic
+import yaml
+from models.io.k8s.apimachinery.pkg.apis.meta import v1 as metav1
+from models.io.upbound.dev.meta.compositiontest import v1alpha1 as compositiontest
 
-from .model.io.upbound.dev.meta.compositiontest import v1alpha1 as compositiontest
-from .model.io.k8s.apimachinery.pkg.apis.meta import v1 as metav1
+from test import resources
 
-from . import resources
 
 def buildTest(name: str, observed: list[pydantic.BaseModel], expected: list[pydantic.BaseModel]) -> compositiontest.CompositionTest:
     return compositiontest.CompositionTest(
-    metadata=metav1.ObjectMeta(
-        name=name,
-    ),
-    spec = compositiontest.Spec(
-        observedResources=[o.model_dump(exclude_unset=True) for o in observed],
-        assertResources=[e.model_dump(exclude_unset=True) for e in expected],
-        compositionPath="apis/xstoragebucket/composition.yaml",
-        xrPath="examples/xstoragebuckets/example.yaml",
-        xrdPath="apis/xstoragebucket/definition.yaml",
-        timeoutSeconds=120,
-        validate=False,
+        metadata=metav1.ObjectMeta(
+            name=name,
+        ),
+        spec=compositiontest.Spec(
+            observedResources=[o.model_dump(exclude_unset=True) for o in observed],
+            assertResources=[e.model_dump(exclude_unset=True) for e in expected],
+            compositionPath="apis/xstoragebucket/composition.yaml",
+            xrPath="examples/xstoragebuckets/example.yaml",
+            xrdPath="apis/xstoragebucket/definition.yaml",
+            timeoutSeconds=120,
+            validate=False,
+        ),
     )
-)
+
 
 test1 = buildTest(
     "test-xstoragebucket-bucket-not-yet-created",
@@ -57,3 +59,7 @@ test2 = buildTest(
         resources.expected_versioning,
     ],
 )
+
+# The test runner expects an "items" array, one entry per test.
+output = {"items": [t.model_dump(by_alias=True, exclude_none=True) for t in (test1, test2)]}
+print(yaml.dump(output))

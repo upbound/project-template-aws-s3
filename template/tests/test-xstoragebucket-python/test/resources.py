@@ -1,9 +1,9 @@
-from .model.io.k8s.apimachinery.pkg.apis.meta import v1 as metav1
-from .model.com.example.platform.xstoragebucket import v1alpha1
-from .model.io.upbound.aws.s3.bucket import v1beta1 as bucketv1beta1
-from .model.io.upbound.aws.s3.bucketpublicaccessblock import v1beta1 as pabv1beta1
-from .model.io.upbound.aws.s3.bucketversioning import v1beta1 as verv1beta1
-from .model.io.upbound.aws.s3.bucketserversideencryptionconfiguration import v1beta1 as ssev1beta1
+from models.io.k8s.apimachinery.pkg.apis.meta import v1 as metav1
+from models.com.example.platform.xstoragebucket import v1alpha1
+from models.io.upbound.aws.s3.bucket import v1beta1 as bucketv1beta1
+from models.io.upbound.aws.s3.bucketpublicaccessblock import v1beta1 as pabv1beta1
+from models.io.upbound.aws.s3.bucketversioning import v1beta1 as verv1beta1
+from models.io.upbound.aws.s3.bucketserversideencryptionconfiguration import v1beta1 as ssev1beta1
 
 expected_xr = v1alpha1.XStorageBucket(
     apiVersion="platform.example.com/v1alpha1",

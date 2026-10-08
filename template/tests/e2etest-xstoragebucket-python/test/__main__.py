@@ -1,11 +1,12 @@
 import base64
 import os
-from pydantic import BaseModel
 
-from .model.io.upbound.dev.meta.e2etest import v1alpha1 as e2etest
-from .model.io.k8s.apimachinery.pkg.apis.meta import v1 as k8s
-from .model.com.example.platform.xstoragebucket import v1alpha1 as xstoragebucket
-from .model.io.upbound.aws.providerconfig import v1beta1 as providerconfig
+import yaml
+from pydantic import BaseModel
+from models.io.upbound.dev.meta.e2etest import v1alpha1 as e2etest
+from models.io.k8s.apimachinery.pkg.apis.meta import v1 as k8s
+from models.com.example.platform.xstoragebucket import v1alpha1 as xstoragebucket
+from models.io.upbound.aws.providerconfig import v1beta1 as providerconfig
 
 class Secret(BaseModel):
     apiVersion: str = "v1"
@@ -70,9 +71,16 @@ test = e2etest.E2ETest(
         defaultConditions=[
             "Ready",
         ],
-        manifests=[bucket_manifest.model_dump()],
-        extraResources=[provider_config.model_dump(), provider_creds.model_dump()],
+        manifests=[bucket_manifest.model_dump(by_alias=True, exclude_none=True)],
+        extraResources=[
+            provider_config.model_dump(by_alias=True, exclude_none=True),
+            provider_creds.model_dump(by_alias=True, exclude_none=True),
+        ],
         skipDelete=False,
         timeoutSeconds=300, # 5 minutes
     )
 )
+
+# The test runner expects an "items" array, one entry per test.
+output = {"items": [test.model_dump(by_alias=True, exclude_none=True)]}
+print(yaml.dump(output))
