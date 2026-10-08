@@ -5,7 +5,7 @@
 # Don't create the BucketVersioning until the bucket name is available.
 #{{ if $bucket_external_name }}
 ---
-apiVersion: s3.aws.upbound.io/v1beta1
+apiVersion: s3.aws.m.upbound.io/v1beta1
 kind: BucketVersioning
 metadata:
   annotations:
@@ -15,7 +15,7 @@ spec:
     region: "{{ $params.region }}"
     bucket: "{{ $bucket_external_name }}"
     versioningConfiguration:
-      - status: Enabled
+      status: Enabled
 
 #{{ end }}
 #{{ end }}

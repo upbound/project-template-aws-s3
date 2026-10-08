@@ -1,8 +1,12 @@
 import json
-import models.io.upbound.aws.s3.v1beta1 as s3v1beta1
-import models.com.example.platform.v1alpha1.xstoragebucket as xstoragebucketv1alpha1
+import models.io.upbound.awsm.s3.v1beta1 as s3v1beta1
+import models.com.example.platform.v1alpha1.storagebucket as storagebucketv1alpha1
 
-oxr = xstoragebucketv1alpha1.XStorageBucket{**option("params").oxr}
+oxr = option("params").oxr
+# Validate only the parameters against the generated schema. Crossplane adds
+# fields under spec.crossplane (such as namespaced resourceRefs) that the
+# generated StorageBucket schema doesn't model, so don't type the whole XR.
+params = storagebucketv1alpha1.PlatformExampleComV1alpha1StorageBucketSpecParameters{**oxr.spec.parameters}
 
 _metadata = lambda name: str -> any {
   {
@@ -18,7 +22,7 @@ _items: [any] = [
         metadata: _metadata("bucket")
         spec = {
             forProvider = {
-                region = oxr.spec.parameters.region
+                region = params.region
             }
         }
     }
@@ -26,7 +30,7 @@ _items: [any] = [
 
 ocds = option("params").ocds
 bucketExternalName = ocds["bucket"]?.Resource?.metadata?.annotations?["crossplane.io/external-name"]
-isPublicRead = oxr.spec.parameters.acl == "public-read"
+isPublicRead = params.acl == "public-read"
 
 if bucketExternalName:
     _items += [
@@ -39,7 +43,7 @@ if bucketExternalName:
             spec = {
                 forProvider = {
                     bucket = bucketExternalName
-                    region = oxr.spec.parameters.region
+                    region = params.region
                     blockPublicAcls: True
                     ignorePublicAcls: True
                     blockPublicPolicy: not isPublicRead
@@ -52,15 +56,13 @@ if bucketExternalName:
             metadata: _metadata("sse")
             spec = {
                 forProvider = {
-                    region = oxr.spec.parameters.region
+                    region = params.region
                     bucket = bucketExternalName
                     rule = [
                         {
-                            applyServerSideEncryptionByDefault = [
-                                {
-                                    sseAlgorithm = "AES256"
-                                }
-                            ]
+                            applyServerSideEncryptionByDefault = {
+                                sseAlgorithm = "AES256"
+                            }
                             bucketKeyEnabled = True
                         }
                     ]
@@ -77,7 +79,7 @@ if bucketExternalName:
                 metadata: _metadata("policy")
                 spec = {
                     forProvider = {
-                        region = oxr.spec.parameters.region
+                        region = params.region
                         bucket = bucketExternalName
                         policy = json.encode({
                             Version = "2012-10-17"
@@ -95,19 +97,17 @@ if bucketExternalName:
         ]
 
     # Set up versioning for the bucket if desired
-    if oxr.spec.parameters.versioning:
+    if params.versioning:
         _items += [
             s3v1beta1.BucketVersioning{
                 metadata: _metadata("versioning")
                 spec = {
                     forProvider = {
-                        region = oxr.spec.parameters.region
+                        region = params.region
                         bucket = bucketExternalName
-                        versioningConfiguration = [
-                            {
-                                status = "Enabled"
-                            }
-                        ]
+                        versioningConfiguration = {
+                            status = "Enabled"
+                        }
                     }
                 }
             }

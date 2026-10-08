@@ -6,7 +6,7 @@ import (
 
 	"dev.upbound.io/models/com/example/platform/v1alpha1"
 	v1 "dev.upbound.io/models/io/k8s/meta/v1"
-	"dev.upbound.io/models/io/upbound/aws/s3/v1beta1"
+	"dev.upbound.io/models/io/upbound/m/aws/s3/v1beta1"
 	"github.com/crossplane/crossplane-runtime/pkg/logging"
 	fnv1 "github.com/crossplane/function-sdk-go/proto/v1"
 	"github.com/crossplane/function-sdk-go/resource"
@@ -40,9 +40,9 @@ func TestRunFunction(t *testing.T) {
 				req: &fnv1.RunFunctionRequest{
 					Meta: &fnv1.RequestMeta{Tag: "hello"},
 					Observed: &fnv1.State{
-						Composite: toResource(&v1alpha1.XStorageBucket{
-							Spec: &v1alpha1.XStorageBucketSpec{
-								Parameters: &v1alpha1.XStorageBucketSpecParameters{
+						Composite: toResource(&v1alpha1.StorageBucket{
+							Spec: &v1alpha1.StorageBucketSpec{
+								Parameters: &v1alpha1.StorageBucketSpecParameters{
 									Region:     ptr.To("us-east-1"),
 									Versioning: ptr.To(false),
 								},
@@ -57,12 +57,12 @@ func TestRunFunction(t *testing.T) {
 					Results: []*fnv1.Result{{
 						Severity: fnv1.Severity_SEVERITY_NORMAL,
 						Message:  "waiting for bucket to be created",
-						Target:   fnv1.Target_TARGET_COMPOSITE_AND_CLAIM.Enum(),
+						Target:   fnv1.Target_TARGET_COMPOSITE.Enum(),
 					}},
 					Desired: &fnv1.State{
 						Resources: map[string]*fnv1.Resource{
 							"bucket": toResource(&v1beta1.Bucket{
-								APIVersion: ptr.To(v1beta1.BucketAPIVersions3AwsUpboundIoV1Beta1),
+								APIVersion: ptr.To(v1beta1.BucketAPIVersions3AwsMUpboundIoV1Beta1),
 								Kind:       ptr.To(v1beta1.BucketKindBucket),
 								Spec: &v1beta1.BucketSpec{
 									ForProvider: &v1beta1.BucketSpecForProvider{
@@ -81,9 +81,9 @@ func TestRunFunction(t *testing.T) {
 				req: &fnv1.RunFunctionRequest{
 					Meta: &fnv1.RequestMeta{Tag: "hello"},
 					Observed: &fnv1.State{
-						Composite: toResource(&v1alpha1.XStorageBucket{
-							Spec: &v1alpha1.XStorageBucketSpec{
-								Parameters: &v1alpha1.XStorageBucketSpecParameters{
+						Composite: toResource(&v1alpha1.StorageBucket{
+							Spec: &v1alpha1.StorageBucketSpec{
+								Parameters: &v1alpha1.StorageBucketSpecParameters{
 									Region:     ptr.To("us-east-1"),
 									Versioning: ptr.To(false),
 								},
@@ -91,7 +91,7 @@ func TestRunFunction(t *testing.T) {
 						}),
 						Resources: map[string]*fnv1.Resource{
 							"bucket": toResource(&v1beta1.Bucket{
-								APIVersion: ptr.To(v1beta1.BucketAPIVersions3AwsUpboundIoV1Beta1),
+								APIVersion: ptr.To(v1beta1.BucketAPIVersions3AwsMUpboundIoV1Beta1),
 								Kind:       ptr.To(v1beta1.BucketKindBucket),
 								Metadata: &v1.ObjectMeta{
 									Annotations: &map[string]string{
@@ -115,7 +115,7 @@ func TestRunFunction(t *testing.T) {
 					Desired: &fnv1.State{
 						Resources: map[string]*fnv1.Resource{
 							"bucket": toResource(&v1beta1.Bucket{
-								APIVersion: ptr.To(v1beta1.BucketAPIVersions3AwsUpboundIoV1Beta1),
+								APIVersion: ptr.To(v1beta1.BucketAPIVersions3AwsMUpboundIoV1Beta1),
 								Kind:       ptr.To(v1beta1.BucketKindBucket),
 								Spec: &v1beta1.BucketSpec{
 									ForProvider: &v1beta1.BucketSpecForProvider{
@@ -124,7 +124,7 @@ func TestRunFunction(t *testing.T) {
 								},
 							}),
 							"pab": toResource(&v1beta1.BucketPublicAccessBlock{
-								APIVersion: ptr.To(v1beta1.BucketPublicAccessBlockAPIVersions3AwsUpboundIoV1Beta1),
+								APIVersion: ptr.To(v1beta1.BucketPublicAccessBlockAPIVersions3AwsMUpboundIoV1Beta1),
 								Kind:       ptr.To(v1beta1.BucketPublicAccessBlockKindBucketPublicAccessBlock),
 								Spec: &v1beta1.BucketPublicAccessBlockSpec{
 									ForProvider: &v1beta1.BucketPublicAccessBlockSpecForProvider{
@@ -138,16 +138,16 @@ func TestRunFunction(t *testing.T) {
 								},
 							}),
 							"sse": toResource(&v1beta1.BucketServerSideEncryptionConfiguration{
-								APIVersion: ptr.To(v1beta1.BucketServerSideEncryptionConfigurationAPIVersions3AwsUpboundIoV1Beta1),
+								APIVersion: ptr.To(v1beta1.BucketServerSideEncryptionConfigurationAPIVersions3AwsMUpboundIoV1Beta1),
 								Kind:       ptr.To(v1beta1.BucketServerSideEncryptionConfigurationKindBucketServerSideEncryptionConfiguration),
 								Spec: &v1beta1.BucketServerSideEncryptionConfigurationSpec{
 									ForProvider: &v1beta1.BucketServerSideEncryptionConfigurationSpecForProvider{
 										Bucket: ptr.To("my-bukkit"),
 										Region: ptr.To("us-east-1"),
 										Rule: &[]v1beta1.BucketServerSideEncryptionConfigurationSpecForProviderRuleItem{{
-											ApplyServerSideEncryptionByDefault: &[]v1beta1.BucketServerSideEncryptionConfigurationSpecForProviderRuleItemApplyServerSideEncryptionByDefaultItem{{
+											ApplyServerSideEncryptionByDefault: &v1beta1.BucketServerSideEncryptionConfigurationSpecForProviderRuleItemApplyServerSideEncryptionByDefault{
 												SseAlgorithm: ptr.To("AES256"),
-											}},
+											},
 											BucketKeyEnabled: ptr.To(true),
 										}},
 									},
@@ -164,10 +164,10 @@ func TestRunFunction(t *testing.T) {
 				req: &fnv1.RunFunctionRequest{
 					Meta: &fnv1.RequestMeta{Tag: "hello"},
 					Observed: &fnv1.State{
-						Composite: toResource(&v1alpha1.XStorageBucket{
-							Spec: &v1alpha1.XStorageBucketSpec{
-								Parameters: &v1alpha1.XStorageBucketSpecParameters{
-									ACL:        ptr.To(v1alpha1.XStorageBucketSpecParametersACLpublicRead),
+						Composite: toResource(&v1alpha1.StorageBucket{
+							Spec: &v1alpha1.StorageBucketSpec{
+								Parameters: &v1alpha1.StorageBucketSpecParameters{
+									ACL:        ptr.To(v1alpha1.StorageBucketSpecParametersACLpublicRead),
 									Region:     ptr.To("us-east-1"),
 									Versioning: ptr.To(false),
 								},
@@ -175,7 +175,7 @@ func TestRunFunction(t *testing.T) {
 						}),
 						Resources: map[string]*fnv1.Resource{
 							"bucket": toResource(&v1beta1.Bucket{
-								APIVersion: ptr.To(v1beta1.BucketAPIVersions3AwsUpboundIoV1Beta1),
+								APIVersion: ptr.To(v1beta1.BucketAPIVersions3AwsMUpboundIoV1Beta1),
 								Kind:       ptr.To(v1beta1.BucketKindBucket),
 								Metadata: &v1.ObjectMeta{
 									Annotations: &map[string]string{
@@ -199,7 +199,7 @@ func TestRunFunction(t *testing.T) {
 					Desired: &fnv1.State{
 						Resources: map[string]*fnv1.Resource{
 							"bucket": toResource(&v1beta1.Bucket{
-								APIVersion: ptr.To(v1beta1.BucketAPIVersions3AwsUpboundIoV1Beta1),
+								APIVersion: ptr.To(v1beta1.BucketAPIVersions3AwsMUpboundIoV1Beta1),
 								Kind:       ptr.To(v1beta1.BucketKindBucket),
 								Spec: &v1beta1.BucketSpec{
 									ForProvider: &v1beta1.BucketSpecForProvider{
@@ -208,7 +208,7 @@ func TestRunFunction(t *testing.T) {
 								},
 							}),
 							"pab": toResource(&v1beta1.BucketPublicAccessBlock{
-								APIVersion: ptr.To(v1beta1.BucketPublicAccessBlockAPIVersions3AwsUpboundIoV1Beta1),
+								APIVersion: ptr.To(v1beta1.BucketPublicAccessBlockAPIVersions3AwsMUpboundIoV1Beta1),
 								Kind:       ptr.To(v1beta1.BucketPublicAccessBlockKindBucketPublicAccessBlock),
 								Spec: &v1beta1.BucketPublicAccessBlockSpec{
 									ForProvider: &v1beta1.BucketPublicAccessBlockSpecForProvider{
@@ -222,23 +222,23 @@ func TestRunFunction(t *testing.T) {
 								},
 							}),
 							"sse": toResource(&v1beta1.BucketServerSideEncryptionConfiguration{
-								APIVersion: ptr.To(v1beta1.BucketServerSideEncryptionConfigurationAPIVersions3AwsUpboundIoV1Beta1),
+								APIVersion: ptr.To(v1beta1.BucketServerSideEncryptionConfigurationAPIVersions3AwsMUpboundIoV1Beta1),
 								Kind:       ptr.To(v1beta1.BucketServerSideEncryptionConfigurationKindBucketServerSideEncryptionConfiguration),
 								Spec: &v1beta1.BucketServerSideEncryptionConfigurationSpec{
 									ForProvider: &v1beta1.BucketServerSideEncryptionConfigurationSpecForProvider{
 										Bucket: ptr.To("my-bukkit"),
 										Region: ptr.To("us-east-1"),
 										Rule: &[]v1beta1.BucketServerSideEncryptionConfigurationSpecForProviderRuleItem{{
-											ApplyServerSideEncryptionByDefault: &[]v1beta1.BucketServerSideEncryptionConfigurationSpecForProviderRuleItemApplyServerSideEncryptionByDefaultItem{{
+											ApplyServerSideEncryptionByDefault: &v1beta1.BucketServerSideEncryptionConfigurationSpecForProviderRuleItemApplyServerSideEncryptionByDefault{
 												SseAlgorithm: ptr.To("AES256"),
-											}},
+											},
 											BucketKeyEnabled: ptr.To(true),
 										}},
 									},
 								},
 							}),
 							"policy": toResource(&v1beta1.BucketPolicy{
-								APIVersion: ptr.To(v1beta1.BucketPolicyAPIVersions3AwsUpboundIoV1Beta1),
+								APIVersion: ptr.To(v1beta1.BucketPolicyAPIVersions3AwsMUpboundIoV1Beta1),
 								Kind:       ptr.To(v1beta1.BucketPolicyKindBucketPolicy),
 								Spec: &v1beta1.BucketPolicySpec{
 									ForProvider: &v1beta1.BucketPolicySpecForProvider{
@@ -259,9 +259,9 @@ func TestRunFunction(t *testing.T) {
 				req: &fnv1.RunFunctionRequest{
 					Meta: &fnv1.RequestMeta{Tag: "hello"},
 					Observed: &fnv1.State{
-						Composite: toResource(&v1alpha1.XStorageBucket{
-							Spec: &v1alpha1.XStorageBucketSpec{
-								Parameters: &v1alpha1.XStorageBucketSpecParameters{
+						Composite: toResource(&v1alpha1.StorageBucket{
+							Spec: &v1alpha1.StorageBucketSpec{
+								Parameters: &v1alpha1.StorageBucketSpecParameters{
 									Region:     ptr.To("us-east-1"),
 									Versioning: ptr.To(true),
 								},
@@ -269,7 +269,7 @@ func TestRunFunction(t *testing.T) {
 						}),
 						Resources: map[string]*fnv1.Resource{
 							"bucket": toResource(&v1beta1.Bucket{
-								APIVersion: ptr.To(v1beta1.BucketAPIVersions3AwsUpboundIoV1Beta1),
+								APIVersion: ptr.To(v1beta1.BucketAPIVersions3AwsMUpboundIoV1Beta1),
 								Kind:       ptr.To(v1beta1.BucketKindBucket),
 								Metadata: &v1.ObjectMeta{
 									Annotations: &map[string]string{
@@ -293,7 +293,7 @@ func TestRunFunction(t *testing.T) {
 					Desired: &fnv1.State{
 						Resources: map[string]*fnv1.Resource{
 							"bucket": toResource(&v1beta1.Bucket{
-								APIVersion: ptr.To(v1beta1.BucketAPIVersions3AwsUpboundIoV1Beta1),
+								APIVersion: ptr.To(v1beta1.BucketAPIVersions3AwsMUpboundIoV1Beta1),
 								Kind:       ptr.To(v1beta1.BucketKindBucket),
 								Spec: &v1beta1.BucketSpec{
 									ForProvider: &v1beta1.BucketSpecForProvider{
@@ -302,7 +302,7 @@ func TestRunFunction(t *testing.T) {
 								},
 							}),
 							"pab": toResource(&v1beta1.BucketPublicAccessBlock{
-								APIVersion: ptr.To(v1beta1.BucketPublicAccessBlockAPIVersions3AwsUpboundIoV1Beta1),
+								APIVersion: ptr.To(v1beta1.BucketPublicAccessBlockAPIVersions3AwsMUpboundIoV1Beta1),
 								Kind:       ptr.To(v1beta1.BucketPublicAccessBlockKindBucketPublicAccessBlock),
 								Spec: &v1beta1.BucketPublicAccessBlockSpec{
 									ForProvider: &v1beta1.BucketPublicAccessBlockSpecForProvider{
@@ -316,31 +316,31 @@ func TestRunFunction(t *testing.T) {
 								},
 							}),
 							"sse": toResource(&v1beta1.BucketServerSideEncryptionConfiguration{
-								APIVersion: ptr.To(v1beta1.BucketServerSideEncryptionConfigurationAPIVersions3AwsUpboundIoV1Beta1),
+								APIVersion: ptr.To(v1beta1.BucketServerSideEncryptionConfigurationAPIVersions3AwsMUpboundIoV1Beta1),
 								Kind:       ptr.To(v1beta1.BucketServerSideEncryptionConfigurationKindBucketServerSideEncryptionConfiguration),
 								Spec: &v1beta1.BucketServerSideEncryptionConfigurationSpec{
 									ForProvider: &v1beta1.BucketServerSideEncryptionConfigurationSpecForProvider{
 										Bucket: ptr.To("my-bukkit"),
 										Region: ptr.To("us-east-1"),
 										Rule: &[]v1beta1.BucketServerSideEncryptionConfigurationSpecForProviderRuleItem{{
-											ApplyServerSideEncryptionByDefault: &[]v1beta1.BucketServerSideEncryptionConfigurationSpecForProviderRuleItemApplyServerSideEncryptionByDefaultItem{{
+											ApplyServerSideEncryptionByDefault: &v1beta1.BucketServerSideEncryptionConfigurationSpecForProviderRuleItemApplyServerSideEncryptionByDefault{
 												SseAlgorithm: ptr.To("AES256"),
-											}},
+											},
 											BucketKeyEnabled: ptr.To(true),
 										}},
 									},
 								},
 							}),
 							"versioning": toResource(&v1beta1.BucketVersioning{
-								APIVersion: ptr.To(v1beta1.BucketVersioningAPIVersions3AwsUpboundIoV1Beta1),
+								APIVersion: ptr.To(v1beta1.BucketVersioningAPIVersions3AwsMUpboundIoV1Beta1),
 								Kind:       ptr.To(v1beta1.BucketVersioningKindBucketVersioning),
 								Spec: &v1beta1.BucketVersioningSpec{
 									ForProvider: &v1beta1.BucketVersioningSpecForProvider{
 										Bucket: ptr.To("my-bukkit"),
 										Region: ptr.To("us-east-1"),
-										VersioningConfiguration: &[]v1beta1.BucketVersioningSpecForProviderVersioningConfigurationItem{{
+										VersioningConfiguration: &v1beta1.BucketVersioningSpecForProviderVersioningConfiguration{
 											Status: ptr.To("Enabled"),
-										}},
+										},
 									},
 								},
 							}),
