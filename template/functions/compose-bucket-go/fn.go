@@ -5,7 +5,7 @@ import (
 	"encoding/json"
 
 	"dev.upbound.io/models/com/example/platform/v1alpha1"
-	"dev.upbound.io/models/io/upbound/aws/s3/v1beta1"
+	"dev.upbound.io/models/io/upbound/m/aws/s3/v1beta1"
 	"github.com/crossplane/crossplane-runtime/pkg/logging"
 	"github.com/crossplane/function-sdk-go/errors"
 	fnv1 "github.com/crossplane/function-sdk-go/proto/v1"
@@ -40,7 +40,7 @@ func (f *Function) RunFunction(_ context.Context, req *fnv1.RunFunctionRequest) 
 		return rsp, nil
 	}
 
-	var xr v1alpha1.XStorageBucket
+	var xr v1alpha1.StorageBucket
 	if err := convertViaJSON(&xr, observedComposite.Resource); err != nil {
 		response.Fatal(rsp, errors.Wrap(err, "cannot convert xr"))
 		return rsp, nil
@@ -78,7 +78,7 @@ func (f *Function) RunFunction(_ context.Context, req *fnv1.RunFunctionRequest) 
 	}()
 
 	bucket := &v1beta1.Bucket{
-		APIVersion: ptr.To(v1beta1.BucketAPIVersions3AwsUpboundIoV1Beta1),
+		APIVersion: ptr.To(v1beta1.BucketAPIVersions3AwsMUpboundIoV1Beta1),
 		Kind:       ptr.To(v1beta1.BucketKindBucket),
 		Spec: &v1beta1.BucketSpec{
 			ForProvider: &v1beta1.BucketSpecForProvider{
@@ -92,7 +92,7 @@ func (f *Function) RunFunction(_ context.Context, req *fnv1.RunFunctionRequest) 
 	// hasn't been created yet. This function will be called again after it is.
 	observedBucket, ok := observedComposed["bucket"]
 	if !ok {
-		response.Normal(rsp, "waiting for bucket to be created").TargetCompositeAndClaim()
+		response.Normal(rsp, "waiting for bucket to be created").TargetComposite()
 		return rsp, nil
 	}
 
@@ -102,16 +102,16 @@ func (f *Function) RunFunction(_ context.Context, req *fnv1.RunFunctionRequest) 
 	// annotation isn't set yet.
 	bucketExternalName := observedBucket.Resource.GetAnnotations()["crossplane.io/external-name"]
 	if bucketExternalName == "" {
-		response.Normal(rsp, "waiting for bucket to be created").TargetCompositeAndClaim()
+		response.Normal(rsp, "waiting for bucket to be created").TargetComposite()
 		return rsp, nil
 	}
 
 	// When acl=public-read we still block public ACLs (modern buckets use
 	// BucketOwnerEnforced) but loosen the policy-related blocks so our
 	// BucketPolicy can grant anonymous read.
-	isPublicRead := params.ACL != nil && *params.ACL == v1alpha1.XStorageBucketSpecParametersACLpublicRead
+	isPublicRead := params.ACL != nil && *params.ACL == v1alpha1.StorageBucketSpecParametersACLpublicRead
 	pab := &v1beta1.BucketPublicAccessBlock{
-		APIVersion: ptr.To(v1beta1.BucketPublicAccessBlockAPIVersions3AwsUpboundIoV1Beta1),
+		APIVersion: ptr.To(v1beta1.BucketPublicAccessBlockAPIVersions3AwsMUpboundIoV1Beta1),
 		Kind:       ptr.To(v1beta1.BucketPublicAccessBlockKindBucketPublicAccessBlock),
 		Spec: &v1beta1.BucketPublicAccessBlockSpec{
 			ForProvider: &v1beta1.BucketPublicAccessBlockSpecForProvider{
@@ -144,7 +144,7 @@ func (f *Function) RunFunction(_ context.Context, req *fnv1.RunFunctionRequest) 
 		}
 		policy := string(policyBytes)
 		desiredComposed["policy"] = &v1beta1.BucketPolicy{
-			APIVersion: ptr.To(v1beta1.BucketPolicyAPIVersions3AwsUpboundIoV1Beta1),
+			APIVersion: ptr.To(v1beta1.BucketPolicyAPIVersions3AwsMUpboundIoV1Beta1),
 			Kind:       ptr.To(v1beta1.BucketPolicyKindBucketPolicy),
 			Spec: &v1beta1.BucketPolicySpec{
 				ForProvider: &v1beta1.BucketPolicySpecForProvider{
@@ -157,16 +157,16 @@ func (f *Function) RunFunction(_ context.Context, req *fnv1.RunFunctionRequest) 
 	}
 
 	sse := &v1beta1.BucketServerSideEncryptionConfiguration{
-		APIVersion: ptr.To(v1beta1.BucketServerSideEncryptionConfigurationAPIVersions3AwsUpboundIoV1Beta1),
+		APIVersion: ptr.To(v1beta1.BucketServerSideEncryptionConfigurationAPIVersions3AwsMUpboundIoV1Beta1),
 		Kind:       ptr.To(v1beta1.BucketServerSideEncryptionConfigurationKindBucketServerSideEncryptionConfiguration),
 		Spec: &v1beta1.BucketServerSideEncryptionConfigurationSpec{
 			ForProvider: &v1beta1.BucketServerSideEncryptionConfigurationSpecForProvider{
 				Bucket: &bucketExternalName,
 				Region: params.Region,
 				Rule: &[]v1beta1.BucketServerSideEncryptionConfigurationSpecForProviderRuleItem{{
-					ApplyServerSideEncryptionByDefault: &[]v1beta1.BucketServerSideEncryptionConfigurationSpecForProviderRuleItemApplyServerSideEncryptionByDefaultItem{{
+					ApplyServerSideEncryptionByDefault: &v1beta1.BucketServerSideEncryptionConfigurationSpecForProviderRuleItemApplyServerSideEncryptionByDefault{
 						SseAlgorithm: ptr.To("AES256"),
-					}},
+					},
 					BucketKeyEnabled: ptr.To(true),
 				}},
 			},
@@ -176,15 +176,15 @@ func (f *Function) RunFunction(_ context.Context, req *fnv1.RunFunctionRequest) 
 
 	if params.Versioning != nil && *params.Versioning {
 		versioning := &v1beta1.BucketVersioning{
-			APIVersion: ptr.To(v1beta1.BucketVersioningAPIVersions3AwsUpboundIoV1Beta1),
+			APIVersion: ptr.To(v1beta1.BucketVersioningAPIVersions3AwsMUpboundIoV1Beta1),
 			Kind:       ptr.To(v1beta1.BucketVersioningKindBucketVersioning),
 			Spec: &v1beta1.BucketVersioningSpec{
 				ForProvider: &v1beta1.BucketVersioningSpecForProvider{
 					Bucket: &bucketExternalName,
 					Region: params.Region,
-					VersioningConfiguration: &[]v1beta1.BucketVersioningSpecForProviderVersioningConfigurationItem{{
+					VersioningConfiguration: &v1beta1.BucketVersioningSpecForProviderVersioningConfiguration{
 						Status: ptr.To("Enabled"),
-					}},
+					},
 				},
 			},
 		}

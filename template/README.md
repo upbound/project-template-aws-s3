@@ -11,7 +11,11 @@ autocompletion, and linting.
 Read the [control plane project documentation][proj-docs] to learn more about
 control plane projects.
 
-This project defines a new `StorageBucket` API, which is powered by AWS S3.
+This project defines a new namespaced `StorageBucket` API (a Crossplane v2
+composite resource), which is powered by AWS S3. Its composition creates
+namespaced S3 managed resources (`s3.aws.m.upbound.io`) in the same namespace
+as the `StorageBucket`, and they authenticate with the `ClusterProviderConfig`
+named `default` (see `examples/providerconfig.yaml`).
 
 ## Python editor support
 

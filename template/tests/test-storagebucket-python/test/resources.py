@@ -1,15 +1,16 @@
 from models.io.k8s.apimachinery.pkg.apis.meta import v1 as metav1
-from models.com.example.platform.xstoragebucket import v1alpha1
-from models.io.upbound.aws.s3.bucket import v1beta1 as bucketv1beta1
-from models.io.upbound.aws.s3.bucketpublicaccessblock import v1beta1 as pabv1beta1
-from models.io.upbound.aws.s3.bucketversioning import v1beta1 as verv1beta1
-from models.io.upbound.aws.s3.bucketserversideencryptionconfiguration import v1beta1 as ssev1beta1
+from models.com.example.platform.storagebucket import v1alpha1
+from models.io.upbound.m.aws.s3.bucket import v1beta1 as bucketv1beta1
+from models.io.upbound.m.aws.s3.bucketpublicaccessblock import v1beta1 as pabv1beta1
+from models.io.upbound.m.aws.s3.bucketversioning import v1beta1 as verv1beta1
+from models.io.upbound.m.aws.s3.bucketserversideencryptionconfiguration import v1beta1 as ssev1beta1
 
-expected_xr = v1alpha1.XStorageBucket(
+expected_xr = v1alpha1.StorageBucket(
     apiVersion="platform.example.com/v1alpha1",
-    kind="XStorageBucket",
+    kind="StorageBucket",
     metadata=metav1.ObjectMeta(
         name="example",
+        namespace="default",
     ),
     spec = v1alpha1.Spec(
         parameters = v1alpha1.Parameters(
@@ -21,7 +22,7 @@ expected_xr = v1alpha1.XStorageBucket(
 )
 
 expected_bucket_before = bucketv1beta1.Bucket(
-    apiVersion="s3.aws.upbound.io/v1beta1",
+    apiVersion="s3.aws.m.upbound.io/v1beta1",
     kind="Bucket",
     metadata=metav1.ObjectMeta(
         annotations={
@@ -36,10 +37,11 @@ expected_bucket_before = bucketv1beta1.Bucket(
 )
 
 observed_bucket = bucketv1beta1.Bucket(
-    apiVersion="s3.aws.upbound.io/v1beta1",
+    apiVersion="s3.aws.m.upbound.io/v1beta1",
     kind="Bucket",
     metadata=metav1.ObjectMeta(
         name="example-bucket",
+        namespace="default",
         annotations={
             "crossplane.io/composition-resource-name": "bucket",
             "crossplane.io/external-name": "example-bucket",
@@ -53,7 +55,7 @@ observed_bucket = bucketv1beta1.Bucket(
 )
 
 expected_bucket_after = bucketv1beta1.Bucket(
-    apiVersion="s3.aws.upbound.io/v1beta1",
+    apiVersion="s3.aws.m.upbound.io/v1beta1",
     kind="Bucket",
     metadata=metav1.ObjectMeta(
         name="example-bucket",
@@ -69,7 +71,7 @@ expected_bucket_after = bucketv1beta1.Bucket(
 )
 
 expected_pab = pabv1beta1.BucketPublicAccessBlock(
-    apiVersion="s3.aws.upbound.io/v1beta1",
+    apiVersion="s3.aws.m.upbound.io/v1beta1",
     kind="BucketPublicAccessBlock",
     metadata=metav1.ObjectMeta(
         annotations={
@@ -89,7 +91,7 @@ expected_pab = pabv1beta1.BucketPublicAccessBlock(
 )
 
 expected_sse = ssev1beta1.BucketServerSideEncryptionConfiguration(
-    apiVersion="s3.aws.upbound.io/v1beta1",
+    apiVersion="s3.aws.m.upbound.io/v1beta1",
     kind="BucketServerSideEncryptionConfiguration",
     metadata=metav1.ObjectMeta(
         annotations={
@@ -102,11 +104,9 @@ expected_sse = ssev1beta1.BucketServerSideEncryptionConfiguration(
             bucket="example-bucket",
             rule=[
                 ssev1beta1.RuleItem(
-                    applyServerSideEncryptionByDefault=[
-                        ssev1beta1.ApplyServerSideEncryptionByDefaultItem(
-                            sseAlgorithm="AES256",
-                        ),
-                    ],
+                    applyServerSideEncryptionByDefault=ssev1beta1.ApplyServerSideEncryptionByDefault(
+                        sseAlgorithm="AES256",
+                    ),
                     bucketKeyEnabled=True,
                 ),
             ],
@@ -115,7 +115,7 @@ expected_sse = ssev1beta1.BucketServerSideEncryptionConfiguration(
 )
 
 expected_versioning = verv1beta1.BucketVersioning(
-    apiVersion="s3.aws.upbound.io/v1beta1",
+    apiVersion="s3.aws.m.upbound.io/v1beta1",
     kind="BucketVersioning",
     metadata=metav1.ObjectMeta(
         annotations={
@@ -126,11 +126,9 @@ expected_versioning = verv1beta1.BucketVersioning(
         forProvider=verv1beta1.ForProvider(
             region="us-west-1",
             bucket="example-bucket",
-            versioningConfiguration=[
-                verv1beta1.VersioningConfigurationItem(
-                    status="Enabled",
-                ),
-            ],
+            versioningConfiguration=verv1beta1.VersioningConfiguration(
+                status="Enabled",
+            ),
         ),
     ),
 )

@@ -1,5 +1,5 @@
 """
-This test suite validates the creation of resources for the XStorageBucket XR.
+This test suite validates the creation of resources for the StorageBucket XR.
 
 Creation of resources happens in two sequential calls to the composition
 function:
@@ -25,23 +25,22 @@ import resources
 # function by clearing them in our expected resources.
 _stripDefaults = lambda obj: any -> any {
     obj | {
-        spec.deletionPolicy = Undefined
         spec.managementPolicies = Undefined
     }
 }
 
 _spec = metav1alpha1.CompositionTest {
     spec = {
-        compositionPath: "apis/xstoragebucket/composition.yaml"
-        xrPath: "examples/xstoragebuckets/example.yaml"
-        xrdPath: "apis/xstoragebucket/definition.yaml"
+        compositionPath: "apis/storagebuckets/composition.yaml"
+        xrPath: "examples/storagebuckets/example.yaml"
+        xrdPath: "apis/storagebuckets/definition.yaml"
         timeoutSeconds: 120
         validate: False
     }
 }
 
 _test1 = metav1alpha1.CompositionTest {
-    metadata.name = "test-xstoragebucket-bucket-not-yet-created"
+    metadata.name = "test-storagebucket-bucket-not-yet-created"
     **_spec
     spec.assertResources = [
         resources._expectedXR
@@ -50,7 +49,7 @@ _test1 = metav1alpha1.CompositionTest {
 }
 
 _test2 = metav1alpha1.CompositionTest {
-    metadata.name = "tests-xstoragebucket-bucket-created"
+    metadata.name = "test-storagebucket-bucket-created"
     **_spec
     spec.observedResources = [
         resources._observedBucket

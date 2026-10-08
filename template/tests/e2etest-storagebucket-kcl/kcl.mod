@@ -1,5 +1,5 @@
 [package]
-name = "e2etest-xstoragebucket"
+name = "e2etest-storagebucket"
 version = "0.0.1"
 
 [dependencies]

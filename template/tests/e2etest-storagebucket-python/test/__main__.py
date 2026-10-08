@@ -5,8 +5,8 @@ import yaml
 from pydantic import BaseModel
 from models.io.upbound.dev.meta.e2etest import v1alpha1 as e2etest
 from models.io.k8s.apimachinery.pkg.apis.meta import v1 as k8s
-from models.com.example.platform.xstoragebucket import v1alpha1 as xstoragebucket
-from models.io.upbound.aws.providerconfig import v1beta1 as providerconfig
+from models.com.example.platform.storagebucket import v1alpha1 as storagebucket
+from models.io.upbound.m.aws.clusterproviderconfig import v1beta1 as clusterproviderconfig
 
 class Secret(BaseModel):
     apiVersion: str = "v1"
@@ -15,12 +15,13 @@ class Secret(BaseModel):
     type: str = "Opaque"
     data: dict[str, str] = {}
 
-bucket_manifest = xstoragebucket.XStorageBucket(
+bucket_manifest = storagebucket.StorageBucket(
     metadata=k8s.ObjectMeta(
         name="uptest-bucket-xr-python",
+        namespace="default",
     ),
-    spec=xstoragebucket.Spec(
-        parameters=xstoragebucket.Parameters(
+    spec=storagebucket.Spec(
+        parameters=storagebucket.Parameters(
             acl="private",
             region="eu-central-1",
             versioning=True,
@@ -42,14 +43,16 @@ aws_session_token = {os.environ.get("UP_AWS_SESSION_TOKEN", "")}
     }
 )
 
-provider_config = providerconfig.ProviderConfig(
+# Namespaced managed resources use the ClusterProviderConfig named "default"
+# unless they set a providerConfigRef.
+provider_config = clusterproviderconfig.ClusterProviderConfig(
     metadata=k8s.ObjectMeta(
         name="default",
     ),
-    spec=providerconfig.Spec(
-        credentials=providerconfig.Credentials(
+    spec=clusterproviderconfig.Spec(
+        credentials=clusterproviderconfig.Credentials(
             source="Secret",
-            secretRef=providerconfig.SecretRef(
+            secretRef=clusterproviderconfig.SecretRef(
                 name="aws-credentials",
                 namespace="crossplane-system",
                 key="credentials",
@@ -60,7 +63,7 @@ provider_config = providerconfig.ProviderConfig(
 
 test = e2etest.E2ETest(
     metadata=k8s.ObjectMeta(
-        name="e2etest-xstoragebucket",
+        name="e2etest-storagebucket",
     ),
     spec=e2etest.Spec(
         crossplane=e2etest.Crossplane(

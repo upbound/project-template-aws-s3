@@ -5,7 +5,7 @@
 #{{ if $bucket_external_name }}
 #{{ $isPublicRead := eq (default "private" $params.acl) "public-read" }}
 ---
-apiVersion: s3.aws.upbound.io/v1beta1
+apiVersion: s3.aws.m.upbound.io/v1beta1
 kind: BucketPublicAccessBlock
 metadata:
   annotations:

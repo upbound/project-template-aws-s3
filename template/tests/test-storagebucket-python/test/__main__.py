@@ -1,4 +1,4 @@
-# This test suite validates the creation of resources for the XStorageBucket XR.
+# This test suite validates the creation of resources for the StorageBucket XR.
 #
 # Creation of resources happens in two sequential calls to the composition
 # function:
@@ -30,9 +30,9 @@ def buildTest(name: str, observed: list[pydantic.BaseModel], expected: list[pyda
         spec=compositiontest.Spec(
             observedResources=[o.model_dump(exclude_unset=True) for o in observed],
             assertResources=[e.model_dump(exclude_unset=True) for e in expected],
-            compositionPath="apis/xstoragebucket/composition.yaml",
-            xrPath="examples/xstoragebuckets/example.yaml",
-            xrdPath="apis/xstoragebucket/definition.yaml",
+            compositionPath="apis/storagebuckets/composition.yaml",
+            xrPath="examples/storagebuckets/example.yaml",
+            xrdPath="apis/storagebuckets/definition.yaml",
             timeoutSeconds=120,
             validate=False,
         ),
@@ -40,7 +40,7 @@ def buildTest(name: str, observed: list[pydantic.BaseModel], expected: list[pyda
 
 
 test1 = buildTest(
-    "test-xstoragebucket-bucket-not-yet-created",
+    "test-storagebucket-bucket-not-yet-created",
     observed=[],
     expected=[
         resources.expected_xr,
@@ -49,7 +49,7 @@ test1 = buildTest(
 )
 
 test2 = buildTest(
-    "test-xstoragebucket-bucket-created",
+    "test-storagebucket-bucket-created",
     observed=[resources.observed_bucket],
     expected=[
         resources.expected_xr,

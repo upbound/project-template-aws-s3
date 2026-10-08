@@ -9,8 +9,8 @@ import (
 
 	"dev.upbound.io/models/com/example/platform/v1alpha1"
 	metav1 "dev.upbound.io/models/io/k8s/meta/v1"
-	awsv1beta1 "dev.upbound.io/models/io/upbound/aws/v1beta1"
 	metav1alpha1 "dev.upbound.io/models/io/upbound/dev/meta/v1alpha1"
+	awsmv1beta1 "dev.upbound.io/models/io/upbound/m/aws/v1beta1"
 	"k8s.io/utils/ptr"
 	"sigs.k8s.io/yaml"
 )
@@ -41,15 +41,16 @@ aws_session_token = %s
 
 	// The StorageBucket XR to deploy for E2E testing.
 	manifests := resourcesToItems[metav1alpha1.E2ETestSpecManifestsItem](
-		&v1alpha1.XStorageBucket{
-			APIVersion: ptr.To(v1alpha1.XStorageBucketAPIVersionplatformExampleComV1Alpha1),
-			Kind:       ptr.To(v1alpha1.XStorageBucketKindXStorageBucket),
+		&v1alpha1.StorageBucket{
+			APIVersion: ptr.To(v1alpha1.StorageBucketAPIVersionplatformExampleComV1Alpha1),
+			Kind:       ptr.To(v1alpha1.StorageBucketKindStorageBucket),
 			Metadata: &metav1.ObjectMeta{
-				Name: ptr.To("uptest-bucket-xr-go"),
+				Name:      ptr.To("uptest-bucket-xr-go"),
+				Namespace: ptr.To("default"),
 			},
-			Spec: &v1alpha1.XStorageBucketSpec{
-				Parameters: &v1alpha1.XStorageBucketSpecParameters{
-					ACL:        ptr.To(v1alpha1.XStorageBucketSpecParametersACLprivate),
+			Spec: &v1alpha1.StorageBucketSpec{
+				Parameters: &v1alpha1.StorageBucketSpecParameters{
+					ACL:        ptr.To(v1alpha1.StorageBucketSpecParametersACLprivate),
 					Region:     ptr.To("eu-central-1"),
 					Versioning: ptr.To(true),
 				},
@@ -57,19 +58,20 @@ aws_session_token = %s
 		},
 	)
 
-	// Extra resources: the AWS ProviderConfig and the credentials Secret it
-	// references.
+	// Extra resources: the AWS ClusterProviderConfig and the credentials Secret
+	// it references. Namespaced managed resources use the ClusterProviderConfig
+	// named "default" unless they set a providerConfigRef.
 	extraResources := resourcesToItems[metav1alpha1.E2ETestSpecExtraResourcesItem](
-		&awsv1beta1.ProviderConfig{
-			APIVersion: ptr.To(awsv1beta1.ProviderConfigAPIVersionawsUpboundIoV1Beta1),
-			Kind:       ptr.To(awsv1beta1.ProviderConfigKindProviderConfig),
+		&awsmv1beta1.ClusterProviderConfig{
+			APIVersion: ptr.To(awsmv1beta1.ClusterProviderConfigAPIVersionawsMUpboundIoV1Beta1),
+			Kind:       ptr.To(awsmv1beta1.ClusterProviderConfigKindClusterProviderConfig),
 			Metadata: &metav1.ObjectMeta{
 				Name: ptr.To("default"),
 			},
-			Spec: &awsv1beta1.ProviderConfigSpec{
-				Credentials: &awsv1beta1.ProviderConfigSpecCredentials{
-					Source: ptr.To(awsv1beta1.ProviderConfigSpecCredentialsSourceSecret),
-					SecretRef: &awsv1beta1.ProviderConfigSpecCredentialsSecretRef{
+			Spec: &awsmv1beta1.ClusterProviderConfigSpec{
+				Credentials: &awsmv1beta1.ClusterProviderConfigSpecCredentials{
+					Source: ptr.To(awsmv1beta1.ClusterProviderConfigSpecCredentialsSourceSecret),
+					SecretRef: &awsmv1beta1.ClusterProviderConfigSpecCredentialsSecretRef{
 						Name:      ptr.To("aws-credentials"),
 						Namespace: ptr.To("crossplane-system"),
 						Key:       ptr.To("credentials"),
@@ -95,7 +97,7 @@ aws_session_token = %s
 		APIVersion: ptr.To(metav1alpha1.E2ETestAPIVersionmetaDevUpboundIoV1Alpha1),
 		Kind:       ptr.To(metav1alpha1.E2ETestKindE2ETest),
 		Metadata: &metav1.ObjectMeta{
-			Name: ptr.To("e2etest-xstoragebucket"),
+			Name: ptr.To("e2etest-storagebucket"),
 		},
 		Spec: &metav1alpha1.E2ETestSpec{
 			Crossplane: &metav1alpha1.E2ETestSpecCrossplane{

@@ -3,9 +3,10 @@
 
 {{- $expectedXR := `
 - apiVersion: platform.example.com/v1alpha1
-  kind: XStorageBucket
+  kind: StorageBucket
   metadata:
     name: example
+    namespace: default
   spec:
     parameters:
       acl: private
@@ -14,7 +15,7 @@
 `}}
 
 {{- $expectedBucketBefore := `
-- apiVersion: s3.aws.upbound.io/v1beta1
+- apiVersion: s3.aws.m.upbound.io/v1beta1
   kind: Bucket
   metadata:
     annotations:
@@ -25,20 +26,21 @@
 `}}
 
 {{- $observedBucket := `
-- apiVersion: s3.aws.upbound.io/v1beta1
+- apiVersion: s3.aws.m.upbound.io/v1beta1
   kind: Bucket
   metadata:
     annotations:
       crossplane.io/composition-resource-name: bucket
       crossplane.io/external-name: example-bucket
     name: example-bucket
+    namespace: default
   spec:
     forProvider:
       region: us-west-1
 `}}
 
 {{- $expectedBucketAfter := `
-- apiVersion: s3.aws.upbound.io/v1beta1
+- apiVersion: s3.aws.m.upbound.io/v1beta1
   kind: Bucket
   metadata:
     annotations:
@@ -50,7 +52,7 @@
 `}}
 
 {{- $expectedSSE := `
-- apiVersion: s3.aws.upbound.io/v1beta1
+- apiVersion: s3.aws.m.upbound.io/v1beta1
   kind: BucketServerSideEncryptionConfiguration
   metadata:
     annotations:
@@ -61,12 +63,12 @@
       region: us-west-1
       rule:
         - applyServerSideEncryptionByDefault:
-          - sseAlgorithm: AES256
+            sseAlgorithm: AES256
           bucketKeyEnabled: true
 `}}
 
 {{- $expectedPAB := `
-- apiVersion: s3.aws.upbound.io/v1beta1
+- apiVersion: s3.aws.m.upbound.io/v1beta1
   kind: BucketPublicAccessBlock
   metadata:
     annotations:
@@ -82,7 +84,7 @@
 `}}
 
 {{- $expectedVersioning := `
-- apiVersion: s3.aws.upbound.io/v1beta1
+- apiVersion: s3.aws.m.upbound.io/v1beta1
   kind: BucketVersioning
   metadata:
     annotations:
@@ -92,5 +94,5 @@
       bucket: example-bucket
       region: us-west-1
       versioningConfiguration:
-        - status: Enabled
+        status: Enabled
 `}}

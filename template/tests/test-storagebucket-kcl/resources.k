@@ -1,8 +1,9 @@
 import models.com.example.platform.v1alpha1 as platformv1alpha1
-import models.io.upbound.aws.s3.v1beta1 as s3v1beta1
+import models.io.upbound.awsm.s3.v1beta1 as s3v1beta1
 
-_expectedXR =  platformv1alpha1.XStorageBucket{
+_expectedXR =  platformv1alpha1.StorageBucket{
     metadata.name: "example"
+    metadata.namespace: "default"
     spec: {
         parameters: {
             acl: "private"
@@ -23,6 +24,7 @@ _expectedBucketBefore = s3v1beta1.Bucket{
 
 _observedBucket = s3v1beta1.Bucket{
     metadata.name: "example-bucket"
+    metadata.namespace: "default"
     metadata.annotations: {
         "crossplane.io/composition-resource-name": "bucket"
         "crossplane.io/external-name": "example-bucket"
@@ -51,11 +53,9 @@ _expectedEncryption = s3v1beta1.BucketServerSideEncryptionConfiguration{
         region: "us-west-1"
         rule: [
             {
-                applyServerSideEncryptionByDefault: [
-                    {
-                        sseAlgorithm: "AES256"
-                    }
-                ]
+                applyServerSideEncryptionByDefault: {
+                    sseAlgorithm: "AES256"
+                }
                 bucketKeyEnabled: True
             }
         ]
@@ -83,10 +83,8 @@ _expectedVersioning = s3v1beta1.BucketVersioning{
     spec.forProvider: {
         bucket: "example-bucket"
         region: "us-west-1"
-        versioningConfiguration: [
-            {
-                status: "Enabled"
-            },
-        ]
+        versioningConfiguration: {
+            status: "Enabled"
+        }
     }
 }

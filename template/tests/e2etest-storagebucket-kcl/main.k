@@ -2,7 +2,7 @@ import base64
 import file
 
 import models.com.example.platform.v1alpha1 as platformv1alpha1
-import models.io.upbound.aws.v1beta1 as awsv1beta1
+import models.io.upbound.awsm.v1beta1 as awsmv1beta1
 import models.io.upbound.dev.meta.v1alpha1 as metav1alpha1
 import models.k8s.apimachinery.pkg.apis.meta.v1 as k8s
 
@@ -20,15 +20,16 @@ schema Secret:
 
 _items = [
     metav1alpha1.E2ETest{
-        metadata.name = "e2etest-xstoragebucket"
+        metadata.name = "e2etest-storagebucket"
         spec = {
             crossplane.autoUpgrade.channel = "Rapid"
             defaultConditions = [
                 "Ready"
             ]
             manifests = [
-                platformv1alpha1.XStorageBucket{
+                platformv1alpha1.StorageBucket{
                     metadata.name = "uptest-bucket-xr-kcl"
+                    metadata.namespace = "default"
                     spec.parameters = {
                         acl = "private"
                         region = "eu-central-1"
@@ -36,8 +37,10 @@ _items = [
                     }
                 }
             ]
+            # Namespaced managed resources use the ClusterProviderConfig named
+            # "default" unless they set a providerConfigRef.
             extraResources = [
-                awsv1beta1.ProviderConfig{
+                awsmv1beta1.ClusterProviderConfig{
                     metadata.name = "default"
                     spec.credentials = {
                         source = "Secret"

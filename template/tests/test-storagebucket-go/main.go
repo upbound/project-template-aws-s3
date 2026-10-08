@@ -1,6 +1,6 @@
 // Package main generates a CompositionTest.
 //
-// This test suite validates the creation of resources for the XStorageBucket
+// This test suite validates the creation of resources for the StorageBucket
 // XR.
 //
 // Creation of resources happens in two sequential calls to the composition
@@ -25,8 +25,8 @@ import (
 
 	"dev.upbound.io/models/com/example/platform/v1alpha1"
 	metav1 "dev.upbound.io/models/io/k8s/meta/v1"
-	s3v1beta1 "dev.upbound.io/models/io/upbound/aws/s3/v1beta1"
 	metav1alpha1 "dev.upbound.io/models/io/upbound/dev/meta/v1alpha1"
+	s3v1beta1 "dev.upbound.io/models/io/upbound/m/aws/s3/v1beta1"
 	"k8s.io/utils/ptr"
 	"sigs.k8s.io/yaml"
 )
@@ -37,16 +37,17 @@ type compositionTestList struct {
 
 func main() {
 	// The XR we expect after the composition function runs. It matches the XR
-	// defined in examples/xstoragebuckets/example.yaml.
-	expectedXR := &v1alpha1.XStorageBucket{
-		APIVersion: ptr.To(v1alpha1.XStorageBucketAPIVersionplatformExampleComV1Alpha1),
-		Kind:       ptr.To(v1alpha1.XStorageBucketKindXStorageBucket),
+	// defined in examples/storagebuckets/example.yaml.
+	expectedXR := &v1alpha1.StorageBucket{
+		APIVersion: ptr.To(v1alpha1.StorageBucketAPIVersionplatformExampleComV1Alpha1),
+		Kind:       ptr.To(v1alpha1.StorageBucketKindStorageBucket),
 		Metadata: &metav1.ObjectMeta{
-			Name: ptr.To("example"),
+			Name:      ptr.To("example"),
+			Namespace: ptr.To("default"),
 		},
-		Spec: &v1alpha1.XStorageBucketSpec{
-			Parameters: &v1alpha1.XStorageBucketSpecParameters{
-				ACL:        ptr.To(v1alpha1.XStorageBucketSpecParametersACLprivate),
+		Spec: &v1alpha1.StorageBucketSpec{
+			Parameters: &v1alpha1.StorageBucketSpecParameters{
+				ACL:        ptr.To(v1alpha1.StorageBucketSpecParametersACLprivate),
 				Region:     ptr.To("us-west-1"),
 				Versioning: ptr.To(true),
 			},
@@ -56,7 +57,7 @@ func main() {
 	// On the first call the function creates only the bucket, since the other
 	// resources depend on the bucket's external name.
 	expectedBucketBefore := &s3v1beta1.Bucket{
-		APIVersion: ptr.To(s3v1beta1.BucketAPIVersions3AwsUpboundIoV1Beta1),
+		APIVersion: ptr.To(s3v1beta1.BucketAPIVersions3AwsMUpboundIoV1Beta1),
 		Kind:       ptr.To(s3v1beta1.BucketKindBucket),
 		Metadata: &metav1.ObjectMeta{
 			Annotations: &map[string]string{
@@ -73,10 +74,11 @@ func main() {
 	// The bucket as observed by Crossplane after creation. Its external-name
 	// annotation is what lets the function create the dependent resources.
 	observedBucket := &s3v1beta1.Bucket{
-		APIVersion: ptr.To(s3v1beta1.BucketAPIVersions3AwsUpboundIoV1Beta1),
+		APIVersion: ptr.To(s3v1beta1.BucketAPIVersions3AwsMUpboundIoV1Beta1),
 		Kind:       ptr.To(s3v1beta1.BucketKindBucket),
 		Metadata: &metav1.ObjectMeta{
-			Name: ptr.To("example-bucket"),
+			Name:      ptr.To("example-bucket"),
+			Namespace: ptr.To("default"),
 			Annotations: &map[string]string{
 				"crossplane.io/composition-resource-name": "bucket",
 				"crossplane.io/external-name":             "example-bucket",
@@ -90,7 +92,7 @@ func main() {
 	}
 
 	expectedBucketAfter := &s3v1beta1.Bucket{
-		APIVersion: ptr.To(s3v1beta1.BucketAPIVersions3AwsUpboundIoV1Beta1),
+		APIVersion: ptr.To(s3v1beta1.BucketAPIVersions3AwsMUpboundIoV1Beta1),
 		Kind:       ptr.To(s3v1beta1.BucketKindBucket),
 		Metadata: &metav1.ObjectMeta{
 			Name: ptr.To("example-bucket"),
@@ -106,7 +108,7 @@ func main() {
 	}
 
 	expectedPAB := &s3v1beta1.BucketPublicAccessBlock{
-		APIVersion: ptr.To(s3v1beta1.BucketPublicAccessBlockAPIVersions3AwsUpboundIoV1Beta1),
+		APIVersion: ptr.To(s3v1beta1.BucketPublicAccessBlockAPIVersions3AwsMUpboundIoV1Beta1),
 		Kind:       ptr.To(s3v1beta1.BucketPublicAccessBlockKindBucketPublicAccessBlock),
 		Metadata: &metav1.ObjectMeta{
 			Annotations: &map[string]string{
@@ -126,7 +128,7 @@ func main() {
 	}
 
 	expectedSSE := &s3v1beta1.BucketServerSideEncryptionConfiguration{
-		APIVersion: ptr.To(s3v1beta1.BucketServerSideEncryptionConfigurationAPIVersions3AwsUpboundIoV1Beta1),
+		APIVersion: ptr.To(s3v1beta1.BucketServerSideEncryptionConfigurationAPIVersions3AwsMUpboundIoV1Beta1),
 		Kind:       ptr.To(s3v1beta1.BucketServerSideEncryptionConfigurationKindBucketServerSideEncryptionConfiguration),
 		Metadata: &metav1.ObjectMeta{
 			Annotations: &map[string]string{
@@ -138,9 +140,9 @@ func main() {
 				Bucket: ptr.To("example-bucket"),
 				Region: ptr.To("us-west-1"),
 				Rule: &[]s3v1beta1.BucketServerSideEncryptionConfigurationSpecForProviderRuleItem{{
-					ApplyServerSideEncryptionByDefault: &[]s3v1beta1.BucketServerSideEncryptionConfigurationSpecForProviderRuleItemApplyServerSideEncryptionByDefaultItem{{
+					ApplyServerSideEncryptionByDefault: &s3v1beta1.BucketServerSideEncryptionConfigurationSpecForProviderRuleItemApplyServerSideEncryptionByDefault{
 						SseAlgorithm: ptr.To("AES256"),
-					}},
+					},
 					BucketKeyEnabled: ptr.To(true),
 				}},
 			},
@@ -148,7 +150,7 @@ func main() {
 	}
 
 	expectedVersioning := &s3v1beta1.BucketVersioning{
-		APIVersion: ptr.To(s3v1beta1.BucketVersioningAPIVersions3AwsUpboundIoV1Beta1),
+		APIVersion: ptr.To(s3v1beta1.BucketVersioningAPIVersions3AwsMUpboundIoV1Beta1),
 		Kind:       ptr.To(s3v1beta1.BucketVersioningKindBucketVersioning),
 		Metadata: &metav1.ObjectMeta{
 			Annotations: &map[string]string{
@@ -159,16 +161,16 @@ func main() {
 			ForProvider: &s3v1beta1.BucketVersioningSpecForProvider{
 				Bucket: ptr.To("example-bucket"),
 				Region: ptr.To("us-west-1"),
-				VersioningConfiguration: &[]s3v1beta1.BucketVersioningSpecForProviderVersioningConfigurationItem{{
+				VersioningConfiguration: &s3v1beta1.BucketVersioningSpecForProviderVersioningConfiguration{
 					Status: ptr.To("Enabled"),
-				}},
+				},
 			},
 		},
 	}
 
 	tests := []metav1alpha1.CompositionTest{
 		buildTest(
-			"test-xstoragebucket-bucket-not-yet-created",
+			"test-storagebucket-bucket-not-yet-created",
 			nil,
 			[]any{
 				expectedXR,
@@ -176,7 +178,7 @@ func main() {
 			},
 		),
 		buildTest(
-			"test-xstoragebucket-bucket-created",
+			"test-storagebucket-bucket-created",
 			[]any{
 				observedBucket,
 			},
@@ -204,9 +206,9 @@ func buildTest(name string, observed, expected []any) metav1alpha1.CompositionTe
 	assertResources := resourcesToItems[metav1alpha1.CompositionTestSpecAssertResourcesItem](expected...)
 	spec := &metav1alpha1.CompositionTestSpec{
 		AssertResources: &assertResources,
-		CompositionPath: ptr.To("apis/xstoragebucket/composition.yaml"),
-		XrPath:          ptr.To("examples/xstoragebuckets/example.yaml"),
-		XrdPath:         ptr.To("apis/xstoragebucket/definition.yaml"),
+		CompositionPath: ptr.To("apis/storagebuckets/composition.yaml"),
+		XrPath:          ptr.To("examples/storagebuckets/example.yaml"),
+		XrdPath:         ptr.To("apis/storagebuckets/definition.yaml"),
 		TimeoutSeconds:  ptr.To(120),
 		Validate:        ptr.To(false),
 	}

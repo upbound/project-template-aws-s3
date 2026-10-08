@@ -7,14 +7,12 @@ from crossplane.function import logging, resource, response
 from crossplane.function.proto.v1 import run_function_pb2 as fnv1
 from crossplane.function.proto.v1 import run_function_pb2_grpc as grpcv1
 
-from models.com.example.platform.xstoragebucket import v1alpha1
-from models.io.upbound.aws.s3.bucket import v1beta1 as bucketv1beta1
-from models.io.upbound.aws.s3.bucketpolicy import v1beta1 as policyv1beta1
-from models.io.upbound.aws.s3.bucketpublicaccessblock import v1beta1 as pabv1beta1
-from models.io.upbound.aws.s3.bucketserversideencryptionconfiguration import (
-    v1beta1 as ssev1beta1,
-)
-from models.io.upbound.aws.s3.bucketversioning import v1beta1 as verv1beta1
+from models.com.example.platform.storagebucket import v1alpha1
+from models.io.upbound.m.aws.s3.bucket import v1beta1 as bucketv1beta1
+from models.io.upbound.m.aws.s3.bucketpolicy import v1beta1 as policyv1beta1
+from models.io.upbound.m.aws.s3.bucketpublicaccessblock import v1beta1 as pabv1beta1
+from models.io.upbound.m.aws.s3.bucketserversideencryptionconfiguration import v1beta1 as ssev1beta1
+from models.io.upbound.m.aws.s3.bucketversioning import v1beta1 as verv1beta1
 
 
 class FunctionRunner(grpcv1.FunctionRunnerService):
@@ -33,7 +31,7 @@ class FunctionRunner(grpcv1.FunctionRunnerService):
 
         rsp = response.to(req)
 
-        observed_xr = v1alpha1.XStorageBucket(**resource.struct_to_dict(req.observed.composite.resource))
+        observed_xr = v1alpha1.StorageBucket(**resource.struct_to_dict(req.observed.composite.resource))
         params = observed_xr.spec.parameters
 
         desired_bucket = bucketv1beta1.Bucket(
@@ -113,11 +111,9 @@ class FunctionRunner(grpcv1.FunctionRunnerService):
                     bucket=bucket_external_name,
                     rule=[
                         ssev1beta1.RuleItem(
-                            applyServerSideEncryptionByDefault=[
-                                ssev1beta1.ApplyServerSideEncryptionByDefaultItem(
-                                    sseAlgorithm="AES256",
-                                ),
-                            ],
+                            applyServerSideEncryptionByDefault=ssev1beta1.ApplyServerSideEncryptionByDefault(
+                                sseAlgorithm="AES256",
+                            ),
                             bucketKeyEnabled=True,
                         ),
                     ],
@@ -136,11 +132,9 @@ class FunctionRunner(grpcv1.FunctionRunnerService):
                 forProvider=verv1beta1.ForProvider(
                     region=params.region,
                     bucket=bucket_external_name,
-                    versioningConfiguration=[
-                        verv1beta1.VersioningConfigurationItem(
-                            status="Enabled",
-                        ),
-                    ],
+                    versioningConfiguration=verv1beta1.VersioningConfiguration(
+                        status="Enabled",
+                    ),
                 ),
             ),
         )

@@ -1,9 +1,10 @@
 # project-template-aws
 
 This template can be used to initialize a new project using `provider-aws`. By
-default it comes with an `XStorageBucket` XRD and a matching composition
-function which creates an S3 bucket. It also creates the corresponding unit and
-e2e tests.
+default it comes with a namespaced `StorageBucket` XRD
+(`apiextensions.crossplane.io/v2`) and a matching composition function which
+creates namespaced S3 resources (`s3.aws.m.upbound.io`). It also creates the
+corresponding unit and e2e tests.
 
 ## Usage
 
